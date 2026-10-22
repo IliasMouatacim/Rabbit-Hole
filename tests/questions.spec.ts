@@ -67,8 +67,12 @@ test("answers branch differently, persist, and keep earlier branches when revisi
     "If an experience changes a plant’s future behavior, is that learning?",
   );
   await expect(page).toHaveURL(/at=learning$/);
-  await expect(page.locator('.web-node[data-node-id="signals"]')).toHaveClass(/is-discovered/);
-  await expect(page.locator('.web-edge[data-edge-id="forest:0"]')).toHaveClass(/is-traversed/);
+  await expect(page.locator('.web-node[data-node-id="signals"]')).toHaveClass(
+    /is-discovered/,
+  );
+  await expect(page.locator('.web-edge[data-edge-id="forest:0"]')).toHaveClass(
+    /is-traversed/,
+  );
   await page.getByRole("button", { name: "Previous question" }).click();
   await page
     .getByRole("button", { name: /No — thinking needs awareness/ })
@@ -104,7 +108,9 @@ test("a shared web reproduces the connections in another browser", async ({
   await expect(other.locator(".question-stage h1")).toHaveText(
     "When resources are scarce, what seems the best strategy?",
   );
-  await expect(other.locator(".web-map-top")).toContainText("3 QUESTIONS · 2 CONNECTIONS");
+  await expect(other.locator(".web-map-top")).toContainText(
+    "3 QUESTIONS · 2 CONNECTIONS",
+  );
   await expect(other.locator(".web-node.is-discovered")).toHaveCount(3);
   await context.close();
 });
@@ -121,7 +127,9 @@ test("starting worlds keep separate webs and restart replaces only the selected 
   );
   await page.getByRole("button", { name: "New web", exact: true }).click();
   await page.getByRole("button", { name: "Keep exploring" }).click();
-  await expect(page.locator(".web-map-top")).toContainText("2 QUESTIONS · 1 CONNECTIONS");
+  await expect(page.locator(".web-map-top")).toContainText(
+    "2 QUESTIONS · 1 CONNECTION",
+  );
   await page.getByRole("button", { name: "New web", exact: true }).click();
   await page.getByRole("button", { name: "Start a new web" }).click();
   await expect(page.locator(".question-stage h1")).toHaveText(
