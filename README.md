@@ -1,6 +1,6 @@
 # Rabbit Hole
 
-A curiosity-driven exploration app built with React 19, TypeScript, Vite, Three.js, and Lenis. A cinematic opening leads into an interactive spiderweb of questions: each answer opens a related question while every earlier branch stays visible. Explore 35 curated questions and 105 answer connections across forests, dreams, and the deep ocean. The knowledge maps provide sources and context.
+A curiosity-driven exploration app built with React 19, TypeScript, Vite, Three.js, and Lenis. A cinematic opening leads into an interactive spiderweb of questions: each answer opens a related question while every earlier branch stays visible. Explore 50 curated questions and 150 answer connections across nature, the mind, the ocean, football, and music. The knowledge maps provide sources and context.
 
 ## Develop
 
@@ -32,7 +32,9 @@ In the Linux cloud workspace, run `npm run test:cloud` to use the packaged Chrom
 - Pan, zoom, pinch, fit the entire web, or center the active question. Keyboard users can tab between nodes, use arrow keys to pan, plus/minus to zoom, and Home to fit the web.
 - Automatic web saving per starting world, previous-question navigation, and a list of every discovered question. Starting a new web requires confirmation.
 - Share links encode every explored connection and the selected question. Shared webs take precedence over the receiving browser's saved web. Older answer-path links and saved trails migrate automatically.
-- Three interactive maps with connected discovery cards and zoom controls.
+- Five subject maps with 24 source-backed discovery cards and zoom controls.
+- A subject bar for switching between saved webs, answer previews, and visible branch progress. Search your discovered questions to return to any thread.
+- Football questions explore tactics, talent, pressing, penalties, supporters, and fairness. Music connects rhythm, emotion, identity, and shared experiences; both subjects also connect to the original questions.
 - Search across all curated ideas; keyboard shortcut Ctrl/Cmd+K.
 - Source links, evidence notes, and follow-up threads.
 - Saved ideas and editable field notes, persisted to this browser's local storage.
@@ -46,7 +48,7 @@ This version uses a curated question graph, not live AI generation. Branches can
 
 Data lives in `src/data.ts`, the interface in `src/main.tsx`, and styling in `src/styles.css`. Add a topic by following the `Topic` and `Idea` types. Keep source URLs and uncertainty notes attached to each idea.
 
-The branching graph lives in `src/questions.ts`. Each question needs three distinct destinations and an existing evidence idea ID.
+The branching graph lives in `src/questions.ts`; `src/extra-subjects.ts` contains the football and music questions and their context cards. Each question needs three distinct destinations and an existing evidence idea ID. Append new questions after existing entries: share links encode edge indices, so reordering published questions or answers would change older links.
 
 - `src/WebJourney.tsx` coordinates question selection, answers, saving, sharing, and dialogs.
 - `src/QuestionWeb.tsx` renders nodes and connections and handles camera gestures. Camera updates use an event-driven animation frame without React state updates during dragging.
