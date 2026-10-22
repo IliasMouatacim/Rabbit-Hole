@@ -38,7 +38,7 @@ import "@fontsource/manrope/latin-600.css";
 import "@fontsource/manrope/latin-700.css";
 import "./styles.css";
 const Cinematic = lazy(() => import("./Cinematic"));
-const QuestionJourney = lazy(() => import("./QuestionJourney"));
+const QuestionJourney = lazy(() => import("./WebJourney"));
 const icons = {
   tree: TreePine,
   network: Network,

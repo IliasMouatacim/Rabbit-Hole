@@ -31,7 +31,7 @@ test("every answer reaches a valid distinct question and the graph has no dead e
   expect(walkTrail("forest", { invalid: true }).choices).toEqual([]);
 });
 
-test("answers branch differently, continue, persist, and can be rewound", async ({
+test("answers branch differently, persist, and keep earlier branches when revisited", async ({
   page,
 }) => {
   const errors: string[] = [];
@@ -57,16 +57,18 @@ test("answers branch differently, continue, persist, and can be rewound", async 
   await expect(page.locator(".question-stage h1")).toHaveText(
     "What would convince you that two plants are communicating?",
   );
-  await page.getByRole("button", { name: "View all" }).click();
+  await page.getByRole("button", { name: "All 3 questions" }).click();
   await page
     .getByRole("dialog")
-    .getByRole("button", { name: /01 Can a forest think/ })
+    .getByRole("button", { name: /Can a forest think/ })
     .click();
   await page.getByRole("button", { name: /Only if it can learn/ }).click();
   await expect(page.locator(".question-stage h1")).toHaveText(
     "If an experience changes a plant’s future behavior, is that learning?",
   );
-  await expect(page).toHaveURL(/#journey\/forest\?p=1$/);
+  await expect(page).toHaveURL(/at=learning$/);
+  await expect(page.locator('.web-node[data-node-id="signals"]')).toHaveClass(/is-discovered/);
+  await expect(page.locator('.web-edge[data-edge-id="forest:0"]')).toHaveClass(/is-traversed/);
   await page.getByRole("button", { name: "Previous question" }).click();
   await page
     .getByRole("button", { name: /No — thinking needs awareness/ })
@@ -83,7 +85,7 @@ test("answers branch differently, continue, persist, and can be rewound", async 
   expect(errors).toEqual([]);
 });
 
-test("a shared trail reproduces the choices in another browser", async ({
+test("a shared web reproduces the connections in another browser", async ({
   page,
   browser,
 }) => {
@@ -93,8 +95,8 @@ test("a shared trail reproduces the choices in another browser", async ({
   );
   const url = page.url();
   await page.context().grantPermissions(["clipboard-read", "clipboard-write"]);
-  await page.getByRole("button", { name: "Share trail" }).click();
-  await expect(page.getByRole("status")).toContainText("Trail link copied");
+  await page.getByRole("button", { name: "Share web" }).click();
+  await expect(page.getByRole("status")).toContainText("Web link copied");
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(url);
   const context = await browser.newContext();
   const other = await context.newPage();
@@ -102,12 +104,12 @@ test("a shared trail reproduces the choices in another browser", async ({
   await expect(other.locator(".question-stage h1")).toHaveText(
     "When resources are scarce, what seems the best strategy?",
   );
-  await expect(other.locator(".journey-step")).toContainText("003");
-  await expect(other.locator(".live-trail li")).toHaveCount(3);
+  await expect(other.locator(".web-map-top")).toContainText("3 QUESTIONS · 2 CONNECTIONS");
+  await expect(other.locator(".web-node.is-discovered")).toHaveCount(3);
   await context.close();
 });
 
-test("starting worlds keep separate trails and restart replaces only the selected trail", async ({
+test("starting worlds keep separate webs and restart replaces only the selected web", async ({
   page,
 }) => {
   await page.goto("/#journey/forest?p=0");
@@ -117,11 +119,11 @@ test("starting worlds keep separate trails and restart replaces only the selecte
   await expect(page.locator(".question-stage h1")).toHaveText(
     "What makes a group smarter than its members?",
   );
-  await page.getByRole("button", { name: "Start again" }).click();
+  await page.getByRole("button", { name: "New web", exact: true }).click();
   await page.getByRole("button", { name: "Keep exploring" }).click();
-  await expect(page.locator(".journey-step")).toContainText("002");
-  await page.getByRole("button", { name: "Start again" }).click();
-  await page.getByRole("button", { name: "Start a new trail" }).click();
+  await expect(page.locator(".web-map-top")).toContainText("2 QUESTIONS · 1 CONNECTIONS");
+  await page.getByRole("button", { name: "New web", exact: true }).click();
+  await page.getByRole("button", { name: "Start a new web" }).click();
   await expect(page.locator(".question-stage h1")).toHaveText(
     "Can a forest think?",
   );

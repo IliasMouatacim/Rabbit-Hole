@@ -52,7 +52,7 @@ test("the pinned journey responds to scrolling, dragging, and reel navigation", 
   await expect(page.locator(".question-stage h1")).toHaveText(
     "What makes a dream feel real while you’re in it?",
   );
-  await expect(page).toHaveURL(/#journey\/dreams\?p=$/);
+  await expect(page).toHaveURL(/#journey\/dreams\?w=&at=dreams$/);
   await expect(page.locator(".cinematic")).toHaveCount(0);
   expect(errors).toEqual([]);
 });
