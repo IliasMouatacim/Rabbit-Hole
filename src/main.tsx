@@ -78,7 +78,7 @@ function App() {
   const [journey, setJourney] = useState<World | null>(
     () =>
       (window.location.hash.match(
-        /^#journey\/(forest|dreams|ocean)(?:\?|$)/,
+        /^#journey\/(forest|dreams|ocean|football|music)(?:\?|$)/,
       )?.[1] as World) || null,
   );
   const [landing, setLanding] = useState(
@@ -318,7 +318,7 @@ function App() {
           </button>
         </nav>
         <div className="nav-section-title">
-          YOUR TRAILS <span>03</span>
+          YOUR TRAILS <span>{String(topics.length).padStart(2, "0")}</span>
         </div>
         <div className="trails">
           {topics.map((t, i) => (
@@ -623,8 +623,10 @@ function App() {
                     <ForestArt />
                   ) : topic.id === "dreams" ? (
                     <Moon size={100} strokeWidth={0.7} />
-                  ) : (
+                  ) : topic.id === "ocean" ? (
                     <Waves size={130} strokeWidth={0.65} />
+                  ) : (
+                    <Icon size={110} strokeWidth={0.7} />
                   )}
                   <span className="art-tag">
                     <Icon size={12} />
@@ -632,7 +634,7 @@ function App() {
                   </span>
                   <span className="art-coordinate">
                     {String(topic.nodes.indexOf(selected) + 1).padStart(2, "0")}{" "}
-                    / 06
+                    / {String(topic.nodes.length).padStart(2, "0")}
                   </span>
                 </div>
                 <div className="detail-content">
@@ -901,8 +903,8 @@ function App() {
                     <Compass size={28} />
                     <h3>That trail hasn’t been mapped yet.</h3>
                     <p>
-                      This edition has 18 curated ideas. Try “forest”, “dream”,
-                      “ocean”, or “consciousness”.
+                      Explore {allIdeas.length} curated ideas. Try “football”,
+                      “music”, “forest”, or “consciousness”.
                     </p>
                     <button
                       className="text-button"

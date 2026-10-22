@@ -1,11 +1,11 @@
 import { test, expect } from "@playwright/test";
-import { questions, questionById, walkTrail } from "../src/questions";
+import { questions, questionById, walkTrail, worlds } from "../src/questions";
 import { allIdeas } from "../src/data";
 
 test("every answer reaches a valid distinct question and the graph has no dead ends", () => {
   expect(new Set(questions.map((q) => q.id)).size).toBe(questions.length);
   const reached = new Set<string>();
-  const queue = ["forest", "dreams", "ocean"];
+  const queue: string[] = [...worlds];
   while (queue.length) {
     const id = queue.pop()!;
     if (reached.has(id)) continue;

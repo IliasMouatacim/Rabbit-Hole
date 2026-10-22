@@ -1,3 +1,4 @@
+import { extraTopics } from "./extra-subjects";
 export type Source = { title: string; publisher: string; url: string };
 export type Idea = {
   id: string;
@@ -415,6 +416,7 @@ export const topics: Topic[] = [
     ],
   },
 ];
+topics.push(...extraTopics);
 export const allIdeas = topics.flatMap((topic) =>
   topic.nodes.map((idea) => ({ topic, idea })),
 );

@@ -1,4 +1,12 @@
-export type World = "forest" | "dreams" | "ocean";
+import { extraQuestions } from "./extra-subjects";
+export const worlds = [
+  "forest",
+  "dreams",
+  "ocean",
+  "football",
+  "music",
+] as const;
+export type World = (typeof worlds)[number];
 export type Answer = { text: string; next: string; connection: string };
 export type Question = {
   id: string;
@@ -865,6 +873,7 @@ export const questions: Question[] = [
   ),
 ];
 
+questions.push(...extraQuestions);
 export const questionById = new Map(questions.map((q) => [q.id, q]));
 export type TrailStep = { question: Question; answer: Answer; choice: number };
 export function walkTrail(
