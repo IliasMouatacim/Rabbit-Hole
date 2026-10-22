@@ -1,6 +1,6 @@
 # Rabbit Hole
 
-A curiosity-driven exploration app built with React 19, TypeScript, Vite, Three.js, and Lenis. A cinematic opening leads into a branching conversation: each answer selects a related question, with 35 curated questions and 105 answer connections across forests, dreams, and the deep ocean. The existing knowledge maps provide sources and context.
+A curiosity-driven exploration app built with React 19, TypeScript, Vite, Three.js, and Lenis. A cinematic opening leads into an interactive spiderweb of questions: each answer opens a related question while every earlier branch stays visible. Explore 35 curated questions and 105 answer connections across forests, dreams, and the deep ocean. The knowledge maps provide sources and context.
 
 ## Develop
 
@@ -27,8 +27,11 @@ In the Linux cloud workspace, run `npm run test:cloud` to use the packaged Chrom
 
 - Scroll-pinned introduction, a pointer-reactive 3D field, live HUD, and horizontal expedition reel. A single animation loop drives the active scene; reduced-motion and WebGL fallbacks are supported.
 - Three answer choices per question, each leading to a different follow-up with a connecting explanation. There is no score or final results screen; paths can reconnect to previously visited questions.
-- Automatic trail saving per starting world, previous-question navigation, and a complete trail for rewinding and trying another answer.
-- Share links encode the full answer path in the URL. Shared paths take precedence over the receiving browser's saved trail.
+- A radial spiderweb with solid explored connections and dashed possible branches. Questions shared by multiple branches reconnect to the same node.
+- Revisit any discovered question and choose another answer without losing earlier branches. Follow preview nodes directly, or use the question panel.
+- Pan, zoom, pinch, fit the entire web, or center the active question. Keyboard users can tab between nodes, use arrow keys to pan, plus/minus to zoom, and Home to fit the web.
+- Automatic web saving per starting world, previous-question navigation, and a list of every discovered question. Starting a new web requires confirmation.
+- Share links encode every explored connection and the selected question. Shared webs take precedence over the receiving browser's saved web. Older answer-path links and saved trails migrate automatically.
 - Three interactive maps with connected discovery cards and zoom controls.
 - Search across all curated ideas; keyboard shortcut Ctrl/Cmd+K.
 - Source links, evidence notes, and follow-up threads.
@@ -39,8 +42,16 @@ In the Linux cloud workspace, run `npm run test:cloud` to use the packaged Chrom
 
 ## Scope
 
-This version uses a curated question graph, not live AI generation. Branches can continue indefinitely by reconnecting, but the set of questions is finite. Answer choices express viewpoints and curiosity rather than graded factual answers. Trails, collections, and notes remain in this browser without account sync; a shared trail URL also contains the selected answers. Source links are provided for independent review; summaries are editorial content and should be reviewed before a public educational launch.
+This version uses a curated question graph, not live AI generation. Branches can continue indefinitely by reconnecting, but the set of questions is finite. Answer choices express viewpoints and curiosity rather than graded factual answers. Webs, collections, and notes remain in this browser without account sync; a shared web URL also contains the explored answers. Source links are provided for independent review; summaries are editorial content and should be reviewed before a public educational launch.
 
 Data lives in `src/data.ts`, the interface in `src/main.tsx`, and styling in `src/styles.css`. Add a topic by following the `Topic` and `Idea` types. Keep source URLs and uncertainty notes attached to each idea.
 
-The branching graph lives in `src/questions.ts`; `QuestionJourney.tsx` handles choices, persistence, share links, and history. Each question needs three distinct destinations and an existing evidence idea ID. `walkTrail` validates saved paths and stops at invalid steps. `Cinematic.tsx` owns the scroll animation loop, and `curiosity-scene.ts` renders the shared 3D artwork without scheduling its own loop.
+The branching graph lives in `src/questions.ts`. Each question needs three distinct destinations and an existing evidence idea ID.
+
+- `src/WebJourney.tsx` coordinates question selection, answers, saving, sharing, and dialogs.
+- `src/QuestionWeb.tsx` renders nodes and connections and handles camera gestures. Camera updates use an event-driven animation frame without React state updates during dragging.
+- `src/web-layout.ts` assigns deterministic radial positions so branches stay in place when revisited.
+- `src/web-state.ts` validates connected edges, preserves branches, and encodes share URLs. Browser storage uses `rh-web-v2-{world}` and migrates `rh-journey-v1-{world}` trails. Legacy `?p=` links remain supported; new links use `?w=` and `at=`.
+- `src/Cinematic.tsx` owns the introduction's scroll animation loop; `src/curiosity-scene.ts` renders its 3D artwork without scheduling its own loop.
+
+The test suite covers graph validation and migration, stable layouts, branch preservation, shared-web restoration, camera controls, touch pinching, keyboard exploration, and the cinematic and knowledge-map flows.
