@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   ArrowDown,
@@ -29,6 +29,7 @@ import {
   Eye,
 } from "lucide-react";
 import { allIdeas, topics, type Idea, type Topic } from "./data";
+import type { World } from "./questions";
 import "@fontsource/dm-sans/latin-400.css";
 import "@fontsource/dm-sans/latin-500.css";
 import "@fontsource/dm-sans/latin-600.css";
@@ -36,6 +37,8 @@ import "@fontsource/manrope/latin-400.css";
 import "@fontsource/manrope/latin-600.css";
 import "@fontsource/manrope/latin-700.css";
 import "./styles.css";
+const Cinematic = lazy(() => import("./Cinematic"));
+const QuestionJourney = lazy(() => import("./QuestionJourney"));
 const icons = {
   tree: TreePine,
   network: Network,
@@ -72,6 +75,17 @@ function RabbitMark({ small = false }: { small?: boolean }) {
   );
 }
 function App() {
+  const [journey, setJourney] = useState<World | null>(
+    () =>
+      (window.location.hash.match(
+        /^#journey\/(forest|dreams|ocean)(?:\?|$)/,
+      )?.[1] as World) || null,
+  );
+  const [landing, setLanding] = useState(
+    () =>
+      !journey &&
+      !topics.some((t) => window.location.hash.startsWith(`#${t.id}/`)),
+  );
   const initial = () => {
     const [t, n] = window.location.hash.slice(1).split("/");
     const topic = topics.find((v) => v.id === t) || topics[0];
@@ -113,9 +127,10 @@ function App() {
     }
   }, [saved, visited]);
   useEffect(() => {
+    if (landing || journey) return;
     setVisited((v) => (v.includes(selected.id) ? v : [...v, selected.id]));
     window.history.replaceState(null, "", `#${topic.id}/${selected.id}`);
-  }, [selected, topic]);
+  }, [selected, topic, landing, journey]);
   useEffect(() => {
     if (toast) {
       const id = setTimeout(() => setToast(""), 3500);
@@ -141,6 +156,9 @@ function App() {
     if (searchOpen) searchRef.current?.focus();
   }, [searchOpen]);
   function chooseTopic(t: Topic, n?: Idea) {
+    if (landing || journey) window.scrollTo({ top: 0, behavior: "instant" });
+    setLanding(false);
+    setJourney(n ? null : (t.id as World));
     setTopic(t);
     setSelected(n || t.nodes[0]);
     setView("explore");
@@ -210,6 +228,40 @@ function App() {
     (n) => n.parent === selected.id || n.id === selected.parent,
   );
   const Icon = icons[selected.icon];
+  if (landing)
+    return (
+      <Suspense
+        fallback={<div className="cinema-loading">FOLLOW YOUR CURIOSITY</div>}
+      >
+        <Cinematic
+          onEnter={(id) =>
+            chooseTopic(topics.find((t) => t.id === id) || topics[0])
+          }
+        />
+      </Suspense>
+    );
+  if (journey)
+    return (
+      <Suspense
+        fallback={<div className="cinema-loading">FOLLOW YOUR CURIOSITY</div>}
+      >
+        <QuestionJourney
+          key={journey}
+          world={journey}
+          onWorld={(id) => chooseTopic(topics.find((t) => t.id === id)!)}
+          onHome={() => {
+            setJourney(null);
+            setLanding(true);
+            window.history.replaceState(null, "", window.location.pathname);
+            window.scrollTo({ top: 0, behavior: "instant" });
+          }}
+          onMap={(id, ideaId) => {
+            const t = topics.find((t) => t.id === id)!;
+            chooseTopic(t, t.nodes.find((n) => n.id === ideaId) || t.nodes[0]);
+          }}
+        />
+      </Suspense>
+    );
   return (
     <div className="app-shell">
       {mobileNav && (
@@ -242,6 +294,9 @@ function App() {
           <kbd>⌘ K</kbd>
         </button>
         <nav aria-label="Main navigation">
+          <button className="nav-item" onClick={() => chooseTopic(topic)}>
+            <GitBranch size={18} /> Answer a question <ArrowUpRight size={13} />
+          </button>
           <button
             className={view === "explore" ? "nav-item active" : "nav-item"}
             onClick={() => {
@@ -278,6 +333,16 @@ function App() {
             </button>
           ))}
         </div>
+        <button
+          className="back-to-descent"
+          onClick={() => {
+            window.history.replaceState(null, "", window.location.pathname);
+            setLanding(true);
+            window.scrollTo({ top: 0, behavior: "instant" });
+          }}
+        >
+          <ArrowUpRight size={16} /> Return to the descent
+        </button>
         <div className="sidebar-bottom">
           <div className="curiosity-card">
             <span className="mini-stars">✧</span>

@@ -4,7 +4,7 @@ test("explore a connection, inspect its source, and save a persistent note", asy
 }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
-  await page.goto("/");
+  await page.goto("/#forest/forest-root");
   await expect(
     page.getByRole("heading", {
       name: "A little wonder. Endless possibilities.",
@@ -53,7 +53,7 @@ test("explore a connection, inspect its source, and save a persistent note", asy
 test("search, change worlds, follow a deep link, and zoom", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/#forest/forest-root");
   await page
     .getByRole("button", { name: "Find a rabbit hole", exact: true })
     .click();
@@ -87,10 +87,13 @@ test("mobile navigation and discovery panel work without page overflow", async (
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/");
+  await page.goto("/#forest/forest-root");
+  await page.getByRole("button", { name: "Close idea" }).click();
   await expect(page.locator(".sidebar")).not.toBeInViewport();
   await page.getByRole("button", { name: "Open navigation" }).click();
   await page.getByRole("button", { name: "Inside the dreaming mind" }).click();
+  await page.getByRole("button", { name: "Knowledge map" }).click();
+  await page.getByRole("button", { name: "Close idea" }).click();
   await expect(page.locator(".exploration-label h2")).toHaveText(
     "Inside the dreaming mind",
   );
