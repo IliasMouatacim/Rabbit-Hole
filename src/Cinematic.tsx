@@ -577,7 +577,7 @@ export default function Cinematic({
             </div>
             <div className="world-viewport">
               <div className="world-track">
-                {topics.map((topic, i) => (
+                {topics.slice(0, 3).map((topic, i) => (
                   <article
                     key={topic.id}
                     className={`world-card world-${i}`}
@@ -612,7 +612,7 @@ export default function Cinematic({
                 0{activeWorld + 1} <span>/ 03</span>
               </span>
               <div className="reel-dots" aria-label="Choose an expedition">
-                {topics.map((t, i) => (
+                {topics.slice(0, 3).map((t, i) => (
                   <button
                     key={t.id}
                     aria-label={`Show ${t.short}`}
@@ -662,6 +662,15 @@ export default function Cinematic({
           >
             Let’s get wonderfully lost <ArrowUpRight size={24} />
           </button>
+          <div className="outro-subjects" aria-label="More subjects">
+            <span>OR FOLLOW A DIFFERENT THREAD</span>
+            {topics.slice(3).map((topic) => (
+              <button key={topic.id} onClick={() => enter(topic.id)}>
+                {topic.short}
+                <ArrowUpRight size={16} />
+              </button>
+            ))}
+          </div>
           <div className="outro-facts">
             <span>
               <Check size={13} /> Sources, not just stories

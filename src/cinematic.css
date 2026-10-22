@@ -1653,3 +1653,33 @@
     transition: none !important;
   }
 }
+.outro-subjects {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 26px auto;
+}
+.outro-subjects > span {
+  width: 100%;
+  font: 9px monospace;
+  letter-spacing: 1.6px;
+  color: #9aaf7d;
+}
+.outro-subjects button {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 13px 20px;
+  border: 1px solid #afc87e55;
+  border-radius: 6px;
+  color: #d5e5bb;
+  background: #a8c0740a;
+  font:
+    14px Manrope,
+    sans-serif;
+}
+.outro-subjects button:hover {
+  background: #a8c07420;
+}
