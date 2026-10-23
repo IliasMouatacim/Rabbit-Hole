@@ -42,8 +42,8 @@ export default function QuestionWeb({
   }, [world, state, focused]);
   const positions = useMemo(() => layoutWeb(world), [world]);
   const visibleKey = graph.nodes.slice().sort().join("|");
-  const latest = useRef({ state, graph });
-  latest.current = { state, graph };
+  const latest = useRef({ state, graph, focused });
+  latest.current = { state, graph, focused };
   useEffect(() => {
     const container = viewport.current!,
       content = plane.current!;
@@ -72,7 +72,8 @@ export default function QuestionWeb({
         Math.min(
           1,
           (container.clientWidth - 40) / bounds.width,
-          (container.clientHeight - 90) / bounds.height,
+          // Leave room for the graph header, filter, and bottom camera controls.
+          (container.clientHeight - 170) / bounds.height,
         ),
       );
       const readable = container.clientWidth < 600 ? 0.55 : 0.62;
@@ -229,7 +230,7 @@ export default function QuestionWeb({
     container.addEventListener("pointercancel", up);
     container.addEventListener("click", click, true);
     container.addEventListener("keydown", key);
-    const observer = new ResizeObserver(() => fit(false));
+    const observer = new ResizeObserver(() => fit(latest.current.focused));
     observer.observe(container);
     fit(false);
     return () => {

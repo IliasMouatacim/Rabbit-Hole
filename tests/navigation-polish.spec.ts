@@ -26,6 +26,20 @@ test("explored-only view removes previews without deleting branches or hiding ne
   await expect(page.locator(".web-node")).toHaveCount(3);
   for (const node of await page.locator(".web-node").all())
     await expect(node).toBeInViewport();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("button", { name: /View web/ }).click();
+  await expect
+    .poll(async () =>
+      page.evaluate(() => {
+        const controls = document
+          .querySelector(".web-camera-controls")!
+          .getBoundingClientRect();
+        return [...document.querySelectorAll(".web-node")].every(
+          (node) => node.getBoundingClientRect().bottom < controls.top,
+        );
+      }),
+    )
+    .toBe(true);
   await toggle.click();
   await expect(page.locator(".web-node.is-preview").first()).toBeVisible();
   await expect(page.locator(".web-node.is-discovered")).toHaveCount(3);
