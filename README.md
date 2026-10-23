@@ -28,9 +28,11 @@ In the Linux cloud workspace, run `npm run test:cloud` to use the packaged Chrom
 - Scroll-pinned introduction, a pointer-reactive 3D field, live HUD, and horizontal expedition reel. A single animation loop drives the active scene; reduced-motion and WebGL fallbacks are supported.
 - Three answer choices per question, each leading to a different follow-up with a connecting explanation. There is no score or final results screen; paths can reconnect to previously visited questions.
 - A radial spiderweb with solid explored connections and dashed possible branches. Questions shared by multiple branches reconnect to the same node.
+- An “Explored only” view hides unanswered possibilities without deleting anything. Turn it off to reveal every available branch again.
 - Revisit any discovered question and choose another answer without losing earlier branches. Follow preview nodes directly, or use the question panel.
 - Pan, zoom, pinch, fit the entire web, or center the active question. Keyboard users can tab between nodes, use arrow keys to pan, plus/minus to zoom, and Home to fit the web.
 - Automatic web saving per starting world, previous-question navigation, and a list of every discovered question. Starting a new web requires confirmation.
+- Reloading your own saved web restores previous-question history. On mobile, persistent “View web” and “Answer question” controls let you jump between the graph and the selected question.
 - Share links encode every explored connection and the selected question. Shared webs take precedence over the receiving browser's saved web. Older answer-path links and saved trails migrate automatically.
 - Five subject maps with 24 source-backed discovery cards and zoom controls.
 - A subject bar for switching between saved webs, answer previews, and visible branch progress. Search your discovered questions to return to any thread.
