@@ -260,3 +260,104 @@
     transition: none;
   }
 }
+.web-focus-toggle {
+  position: absolute;
+  top: 49px;
+  left: 22px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 8px 11px;
+  border: 1px solid #a7c27b50;
+  border-radius: 6px;
+  background: #182111ed;
+  color: #bacf9b;
+  font:
+    11px Manrope,
+    sans-serif;
+}
+.web-focus-toggle[aria-pressed="true"] {
+  color: #25351a;
+  background: #d5e9b3;
+  border-color: #d5e9b3;
+}
+.web-focus-toggle:focus-visible {
+  outline: 2px solid #e0edbb;
+  outline-offset: 3px;
+}
+.web-focus-hint {
+  position: absolute;
+  top: 88px;
+  left: 22px;
+  right: 22px;
+  z-index: 2;
+  pointer-events: none;
+  font-size: 11px;
+  color: #b7c99f;
+}
+.mobile-web-dock {
+  display: none;
+}
+@media (max-width: 800px) {
+  .web-experience {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  }
+  .mobile-web-dock {
+    display: flex;
+    position: fixed;
+    z-index: 30;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    gap: 9px;
+    background: #10170ff5;
+    border-top: 1px solid #adc78440;
+    box-shadow: 0 -8px 30px #0003;
+  }
+  .mobile-web-dock button {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 9px;
+    min-height: 46px;
+    padding: 7px;
+    border-radius: 7px;
+    color: #c7d9af;
+    border: 1px solid #a4bf7340;
+    background: #192213;
+    font:
+      11px Manrope,
+      sans-serif;
+    text-align: left;
+  }
+  .mobile-web-dock button:last-child {
+    background: #d5e9b3;
+    color: #25351a;
+  }
+  .mobile-web-dock small {
+    display: block;
+    font-size: 8px;
+    margin-top: 3px;
+    opacity: 0.8;
+  }
+  .web-map-shell {
+    scroll-margin-top: 12px;
+  }
+  .web-focus-toggle {
+    top: 34px;
+    left: 14px;
+    font-size: 10px;
+  }
+  .web-focus-hint {
+    top: 70px;
+    left: 14px;
+    font-size: 10px;
+  }
+  .web-question-panel {
+    scroll-margin-bottom: 90px;
+  }
+}

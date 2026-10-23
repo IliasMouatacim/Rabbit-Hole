@@ -420,6 +420,41 @@ export default function WebJourney({
           </div>
         </aside>
       </main>
+      {!listOpen && !resetOpen && (
+        <nav
+          className="mobile-web-dock"
+          aria-label="Jump between web and question"
+        >
+          <button
+            onClick={() => {
+              const map = document.getElementById("question-web");
+              map?.scrollIntoView({ block: "start", behavior: "instant" });
+              map
+                ?.querySelector<HTMLElement>(".web-viewport")
+                ?.focus({ preventScroll: true });
+            }}
+          >
+            <GitBranch size={17} />
+            <span>
+              View web<small>{discovered.size} questions connected</small>
+            </span>
+          </button>
+          <button
+            onClick={() => {
+              panel.current?.scrollIntoView({
+                block: "start",
+                behavior: "instant",
+              });
+              heading.current?.focus({ preventScroll: true });
+            }}
+          >
+            <ArrowRight size={17} />
+            <span>
+              Answer question<small>Follow your next thread</small>
+            </span>
+          </button>
+        </nav>
+      )}
       <footer className="journey-footer">
         <span>
           <span className="signal-light" />

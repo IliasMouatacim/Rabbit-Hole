@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef } from "react";
-import { Crosshair, Expand, Minus, Plus } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Crosshair, Expand, Minus, Plus, Eye, EyeOff } from "lucide-react";
 import { questionById, type World } from "./questions";
 import { visibleWeb, type WebState } from "./web-state";
 import { layoutWeb, WEB_SIZE, webBounds, type Point } from "./web-layout";
@@ -29,7 +29,17 @@ export default function QuestionWeb({
     zoom: (_factor: number) => {},
   });
   const camera = useRef<Camera>({ x: 0, y: 0, zoom: 1 });
-  const graph = useMemo(() => visibleWeb(world, state), [world, state]);
+  const [focused, setFocused] = useState(false);
+  const graph = useMemo(() => {
+    const full = visibleWeb(world, state);
+    return focused
+      ? {
+          ...full,
+          nodes: [...full.discovered],
+          edges: full.edges.filter((edge) => state.edges.includes(edge.id)),
+        }
+      : full;
+  }, [world, state, focused]);
   const positions = useMemo(() => layoutWeb(world), [world]);
   const visibleKey = graph.nodes.slice().sort().join("|");
   const latest = useRef({ state, graph });
@@ -236,9 +246,14 @@ export default function QuestionWeb({
     };
   }, [positions]);
   useEffect(() => {
-    controls.current.reveal();
-  }, [visibleKey]);
+    if (focused) controls.current.fit();
+    else controls.current.reveal();
+  }, [visibleKey, focused]);
   useEffect(() => {
+    if (focused) {
+      controls.current.fit();
+      return;
+    }
     const area = viewport.current!,
       point = positions.get(state.selected)!,
       c = camera.current;
@@ -251,10 +266,10 @@ export default function QuestionWeb({
       y > area.clientHeight - 100
     )
       controls.current.center(state.selected);
-  }, [state.selected, positions]);
+  }, [state.selected, positions, focused]);
 
   return (
-    <div className="web-map-shell">
+    <div className="web-map-shell" id="question-web">
       <div className="web-map-top">
         <span>
           <i /> YOUR GROWING WEB
@@ -266,6 +281,20 @@ export default function QuestionWeb({
           {state.edges.length === 1 ? "CONNECTION" : "CONNECTIONS"}
         </span>
       </div>
+      <button
+        className="web-focus-toggle"
+        aria-pressed={focused}
+        onClick={() => setFocused((value) => !value)}
+        title="Show only the questions and connections you have explored"
+      >
+        {focused ? <EyeOff size={14} /> : <Eye size={14} />}
+        Explored only
+      </button>
+      {focused && !state.edges.length && (
+        <p className="web-focus-hint" role="status">
+          Choose an answer to add your first connection.
+        </p>
+      )}
       <div
         ref={viewport}
         className="web-viewport"
