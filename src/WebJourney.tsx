@@ -151,10 +151,10 @@ export default function WebJourney({
     );
     if (fromCanvas) revealPanel();
   }
-  function select(id: string, showPanel = true) {
+  function select(id: string) {
     setState((previous) => selectDiscovered(world, previous, id));
     setListOpen(false);
-    if (showPanel) revealPanel();
+    revealPanel();
     requestAnimationFrame(() =>
       heading.current?.focus({ preventScroll: true }),
     );
@@ -294,9 +294,7 @@ export default function WebJourney({
             world={world}
             state={state}
             onSelect={select}
-            onAnswer={(from, choice, showPanel = true) =>
-              chooseFrom(from, choice, showPanel)
-            }
+            onAnswer={(from, choice) => chooseFrom(from, choice, true)}
             hovered={hover}
           />
           <aside
@@ -460,10 +458,9 @@ export default function WebJourney({
               onClick={() => {
                 const map = document.getElementById("question-web");
                 map?.scrollIntoView({ block: "start", behavior: "instant" });
-                const viewport = map?.matches(".web-viewport")
-                  ? map
-                  : map?.querySelector<HTMLElement>(".web-viewport");
-                viewport?.focus({ preventScroll: true });
+                map
+                  ?.querySelector<HTMLElement>(".web-viewport")
+                  ?.focus({ preventScroll: true });
               }}
             >
               <GitBranch size={17} />
