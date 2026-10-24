@@ -33,6 +33,8 @@ In the Linux cloud workspace, run `npm run test:cloud` to use the packaged Chrom
 - Pan, zoom, pinch, fit the entire web, or center the active question. Keyboard users can tab between nodes, use arrow keys to pan, plus/minus to zoom, and Home to fit the web.
 - Automatic web saving per starting world, previous-question navigation, and a list of every discovered question. Starting a new web requires confirmation.
 - Reloading your own saved web restores previous-question history. On mobile, persistent “View web” and “Answer question” controls let you jump between the graph and the selected question.
+- Evidence detours offer “Back to your web” in the sidebar and source panel. This restores the original subject, selected question, and branches during the visit, even when browser storage is unavailable.
+- Question and reset dialogs isolate background controls, lock page scrolling, and restore keyboard focus when dismissed.
 - Share links encode every explored connection and the selected question. Shared webs take precedence over the receiving browser's saved web. Older answer-path links and saved trails migrate automatically.
 - Five subject maps with 24 source-backed discovery cards and zoom controls.
 - A subject bar for switching between saved webs, answer previews, and visible branch progress. Search your discovered questions to return to any thread.
