@@ -364,3 +364,52 @@
 .web-content {
   display: contents;
 }
+.web-experience .web-node {
+  border-radius: 16px;
+  padding: 13px 15px;
+  box-shadow: none;
+}
+.web-experience .web-node strong {
+  font-size: 13px;
+  line-height: 1.45;
+}
+.web-experience .web-node-top {
+  font-size: 7px;
+  letter-spacing: 0.4px;
+}
+.web-experience .web-node-bottom {
+  display: none;
+}
+.web-experience .web-plane[data-overview="true"] .web-node strong {
+  font-size: calc(11px / var(--web-zoom));
+}
+.web-experience .web-node.is-selected {
+  box-shadow:
+    0 0 0 4px #cce5a521,
+    0 0 30px #cce5a515;
+}
+.web-experience .web-camera-controls button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px;
+  font-size: 11px;
+}
+.web-experience .web-gesture-hint {
+  font:
+    10px Manrope,
+    sans-serif;
+  letter-spacing: 0;
+  color: #a6bc8c;
+}
+@media (max-width: 800px) {
+  .web-experience .web-map-bottom {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+  .web-experience .web-gesture-hint {
+    font-size: 8px;
+  }
+}

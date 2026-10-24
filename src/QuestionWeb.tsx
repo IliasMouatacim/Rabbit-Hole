@@ -404,11 +404,11 @@ export default function QuestionWeb({
               >
                 <span className="web-node-top">
                   <i />
-                  {id === world
-                    ? "STARTING QUESTION"
+                  {selected
+                    ? "CURRENT QUESTION"
                     : known
-                      ? q.world.toUpperCase()
-                      : "UNEXPLORED BRANCH"}
+                      ? "VISITED"
+                      : "EXPLORE"}
                   <span>{selected ? "●" : known ? `${answered}/3` : "+"}</span>
                 </span>
                 <strong>{q.title}</strong>
@@ -457,6 +457,7 @@ export default function QuestionWeb({
             onClick={() => controls.current.center(state.selected)}
           >
             <Crosshair size={15} />
+            <span>Center</span>
           </button>
           <button
             aria-label="Fit entire web"
@@ -464,11 +465,12 @@ export default function QuestionWeb({
             onClick={() => controls.current.fit()}
           >
             <Expand size={15} />
+            <span>Fit web</span>
           </button>
         </div>
       </div>
       <span className="web-gesture-hint">
-        DRAG TO MOVE · SCROLL OR PINCH TO ZOOM
+        Drag to move · Pinch or use + / − to zoom
       </span>
     </div>
   );
