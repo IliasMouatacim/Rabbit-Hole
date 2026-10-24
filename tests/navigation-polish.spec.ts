@@ -4,9 +4,6 @@ test("explored-only view removes previews without deleting branches or hiding ne
   page,
 }) => {
   await page.goto("/#journey/football?p=");
-  await page
-    .getByRole("button", { name: "All connections", exact: true })
-    .click();
   const toggle = page.getByRole("button", {
     name: "Explored only",
     exact: true,

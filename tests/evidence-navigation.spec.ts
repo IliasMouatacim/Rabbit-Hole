@@ -26,7 +26,7 @@ test("mobile evidence detours return to the original cross-subject web without s
   await expect(page.locator(".question-stage h1")).toContainText(
     "club feel like part",
   );
-  await expect(page.locator(".simple-web-header")).toContainText("4 questions");
+  await expect(page.locator(".web-node.is-discovered")).toHaveCount(4);
   await page
     .getByRole("button", { name: /The memories attached to the badge/ })
     .click();

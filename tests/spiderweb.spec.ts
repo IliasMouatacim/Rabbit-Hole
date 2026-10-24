@@ -5,9 +5,6 @@ test("the canvas grows multiple branches and reconnects without duplicate nodes"
   browser,
 }) => {
   await page.goto("/#journey/forest?p=");
-  await page
-    .getByRole("button", { name: "All connections", exact: true })
-    .click();
   await expect(page.locator(".web-node")).toHaveCount(4);
   await page
     .getByRole("button", { name: /Yes, if its parts work together/ })
@@ -34,16 +31,10 @@ test("the canvas grows multiple branches and reconnects without duplicate nodes"
   await expect(page.locator(".web-node.is-discovered")).toHaveCount(4);
   await expect(page.locator(".web-edge.is-traversed")).toHaveCount(3);
   await page.reload();
-  await page
-    .getByRole("button", { name: "All connections", exact: true })
-    .click();
   await expect(page.locator(".web-node.is-discovered")).toHaveCount(4);
   const context = await browser.newContext();
   const other = await context.newPage();
   await other.goto(page.url());
-  await other
-    .getByRole("button", { name: "All connections", exact: true })
-    .click();
   await expect(other.locator('.web-node[data-node-id="signals"]')).toHaveClass(
     /is-discovered/,
   );
@@ -58,9 +49,6 @@ test("unexplored nodes can be followed directly and canvas controls work", async
   page,
 }) => {
   await page.goto("/#journey/forest?p=");
-  await page
-    .getByRole("button", { name: "All connections", exact: true })
-    .click();
   await page
     .getByRole("button", {
       name: "Explore question: What makes a group smarter than its members?",
@@ -102,9 +90,6 @@ test("touch gestures zoom the web while the active question remains usable", asy
   });
   const page = await context.newPage();
   await page.goto("/#journey/forest?p=");
-  await page
-    .getByRole("button", { name: "All connections", exact: true })
-    .click();
   await page.locator(".web-node").first().waitFor();
   const area = await page.locator(".web-viewport").boundingBox();
   const before = await page.locator(".web-camera-controls>span").textContent();
@@ -147,9 +132,6 @@ test("mobile keyboard exploration preserves the full web and stays within the sc
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/#journey/forest?p=00");
-  await page
-    .getByRole("button", { name: "All connections", exact: true })
-    .click();
   await page
     .getByRole("button", { name: "Open question: Can a forest think?" })
     .focus();

@@ -67,9 +67,6 @@ test("answers branch differently, persist, and keep earlier branches when revisi
     "If an experience changes a plant’s future behavior, is that learning?",
   );
   await expect(page).toHaveURL(/at=learning$/);
-  await page
-    .getByRole("button", { name: "All connections", exact: true })
-    .click();
   await expect(page.locator('.web-node[data-node-id="signals"]')).toHaveClass(
     /is-discovered/,
   );
@@ -108,9 +105,6 @@ test("a shared web reproduces the connections in another browser", async ({
   const context = await browser.newContext();
   const other = await context.newPage();
   await other.goto(url);
-  await other
-    .getByRole("button", { name: "All connections", exact: true })
-    .click();
   await expect(other.locator(".question-stage h1")).toHaveText(
     "When resources are scarce, what seems the best strategy?",
   );
@@ -133,8 +127,8 @@ test("starting worlds keep separate webs and restart replaces only the selected 
   );
   await page.getByRole("button", { name: "New web", exact: true }).click();
   await page.getByRole("button", { name: "Keep exploring" }).click();
-  await expect(page.locator(".simple-web-header")).toContainText(
-    "2 questions · 1 connection",
+  await expect(page.locator(".web-map-top")).toContainText(
+    "2 QUESTIONS · 1 CONNECTION",
   );
   await page.getByRole("button", { name: "New web", exact: true }).click();
   await page.getByRole("button", { name: "Start a new web" }).click();
