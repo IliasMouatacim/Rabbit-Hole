@@ -1773,3 +1773,19 @@ h1 > span {
     scroll-behavior: auto !important;
   }
 }
+.evidence-return {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  margin-bottom: 20px;
+  background: #e2ebd4;
+  border: 1px solid #9eaf87;
+  border-radius: 6px;
+  color: #344729;
+  font-size: 12px;
+}
+.evidence-return:focus-visible {
+  outline: 2px solid #597a36;
+  outline-offset: 3px;
+}

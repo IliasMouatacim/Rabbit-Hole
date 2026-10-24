@@ -107,6 +107,10 @@ function App() {
   );
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [returnWeb, setReturnWeb] = useState<{
+    world: World;
+    hash: string;
+  } | null>(null);
   const [zoom, setZoom] = useState(1);
   const [toast, setToast] = useState("");
   const [mobileNav, setMobileNav] = useState(false);
@@ -173,6 +177,11 @@ function App() {
     setSelected(n);
     setDetailOpen(true);
     setDetailTab("story");
+  }
+  function resumeWeb() {
+    if (!returnWeb) return;
+    window.history.replaceState(null, "", returnWeb.hash);
+    chooseTopic(topics.find((t) => t.id === returnWeb.world)!);
   }
   function toggleSave(id: string) {
     setSaved((v) =>
@@ -256,6 +265,7 @@ function App() {
             window.scrollTo({ top: 0, behavior: "instant" });
           }}
           onMap={(id, ideaId) => {
+            setReturnWeb({ world: journey, hash: window.location.hash });
             const t = topics.find((t) => t.id === id)!;
             chooseTopic(t, t.nodes.find((n) => n.id === ideaId) || t.nodes[0]);
           }}
@@ -294,8 +304,13 @@ function App() {
           <kbd>⌘ K</kbd>
         </button>
         <nav aria-label="Main navigation">
-          <button className="nav-item" onClick={() => chooseTopic(topic)}>
-            <GitBranch size={18} /> Answer a question <ArrowUpRight size={13} />
+          <button
+            className="nav-item"
+            onClick={() => (returnWeb ? resumeWeb() : chooseTopic(topic))}
+          >
+            <GitBranch size={18} />{" "}
+            {returnWeb ? "Back to your web" : "Answer a question"}{" "}
+            <ArrowUpRight size={13} />
           </button>
           <button
             className={view === "explore" ? "nav-item active" : "nav-item"}
@@ -638,6 +653,12 @@ function App() {
                   </span>
                 </div>
                 <div className="detail-content">
+                  {returnWeb && (
+                    <button className="evidence-return" onClick={resumeWeb}>
+                      <GitBranch size={15} /> Back to your web{" "}
+                      <ArrowUpRight size={14} />
+                    </button>
+                  )}
                   <div className="detail-eyebrow">
                     <span className="green-dot" /> A THREAD TO FOLLOW{" "}
                     <span>3 MIN READ</span>
