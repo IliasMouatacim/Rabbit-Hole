@@ -27,7 +27,8 @@ In the Linux cloud workspace, run `npm run test:cloud` to use the packaged Chrom
 
 - Scroll-pinned introduction, a pointer-reactive 3D field, live HUD, and horizontal expedition reel. A single animation loop drives the active scene; reduced-motion and WebGL fallbacks are supported.
 - Three answer choices per question, each leading to a different follow-up with a connecting explanation. There is no score or final results screen; paths can reconnect to previously visited questions.
-- A radial spiderweb with solid explored connections and dashed possible branches. Questions shared by multiple branches reconnect to the same node.
+- A simple branch map opens by default: the current question connects to three large answer cards. Choose a card or revisit an earlier question without dragging or zooming. Mobile uses a vertical branch layout and ordinary page scrolling.
+- “All connections” opens the complete spiderweb with solid explored connections and dashed possible branches. “Nearby questions” returns to the simple view without changing saved progress. Questions shared by multiple branches reconnect to the same node.
 - An “Explored only” view hides unanswered possibilities without deleting anything. Turn it off to reveal every available branch again.
 - Revisit any discovered question and choose another answer without losing earlier branches. Follow preview nodes directly, or use the question panel.
 - Pan, zoom, pinch, fit the entire web, or center the active question. Keyboard users can tab between nodes, use arrow keys to pan, plus/minus to zoom, and Home to fit the web.
@@ -55,7 +56,7 @@ Data lives in `src/data.ts`, the interface in `src/main.tsx`, and styling in `sr
 The branching graph lives in `src/questions.ts`; `src/extra-subjects.ts` contains the football and music questions and their context cards. Each question needs three distinct destinations and an existing evidence idea ID. Append new questions after existing entries: share links encode edge indices, so reordering published questions or answers would change older links.
 
 - `src/WebJourney.tsx` coordinates question selection, answers, saving, sharing, and dialogs.
-- `src/QuestionWeb.tsx` renders nodes and connections and handles camera gestures. Camera updates use an event-driven animation frame without React state updates during dragging.
+- `src/QuestionWeb.tsx` renders the simple branch map, earlier-question buttons, and view switch. `src/WebOverview.tsx` renders the complete network and handles camera gestures using an event-driven animation frame without React state updates during dragging.
 - `src/web-layout.ts` assigns deterministic radial positions so branches stay in place when revisited.
 - `src/web-state.ts` validates connected edges, preserves branches, and encodes share URLs. Browser storage uses `rh-web-v2-{world}` and migrates `rh-journey-v1-{world}` trails. Legacy `?p=` links remain supported; new links use `?w=` and `at=`.
 - `src/Cinematic.tsx` owns the introduction's scroll animation loop; `src/curiosity-scene.ts` renders its 3D artwork without scheduling its own loop.
