@@ -133,6 +133,14 @@ export default function WebJourney({
   useEffect(() => {
     if (listOpen) listClose.current?.focus();
   }, [listOpen]);
+  useEffect(() => {
+    if (!listOpen && !resetOpen) return;
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = overflow;
+    };
+  }, [listOpen, resetOpen]);
   function revealPanel() {
     if (window.innerWidth <= 800)
       panel.current?.scrollIntoView({ block: "start", behavior: "instant" });
@@ -147,6 +155,9 @@ export default function WebJourney({
     setState((previous) => selectDiscovered(world, previous, id));
     setListOpen(false);
     revealPanel();
+    requestAnimationFrame(() =>
+      heading.current?.focus({ preventScroll: true }),
+    );
   }
   async function share() {
     try {
@@ -163,6 +174,8 @@ export default function WebJourney({
     close: () => void,
   ) {
     if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
       close();
       return;
     }
@@ -182,294 +195,311 @@ export default function WebJourney({
   }
   const closeList = () => {
     setListOpen(false);
-    listButton.current?.focus();
+    requestAnimationFrame(() =>
+      listButton.current?.focus({ preventScroll: true }),
+    );
   };
   const closeReset = () => {
     setResetOpen(false);
-    resetButton.current?.focus();
+    requestAnimationFrame(() =>
+      resetButton.current?.focus({ preventScroll: true }),
+    );
   };
   return (
     <div className={`question-journey web-experience world-${current.world}`}>
-      <div className="journey-background" aria-hidden="true" />
-      <header className="journey-nav">
-        <button
-          className="cinema-brand"
-          onClick={onHome}
-          aria-label="Rabbit Hole — return to the descent"
-        >
-          <span className="cinema-logo">
-            <i />
-            <i />
-            <b />
-          </span>
-          rabbit hole<span className="logo-period">®</span>
-        </button>
-        <div className="journey-nav-caption">
-          <span className="signal-light" /> EVERY ANSWER ADDS A THREAD.
-        </div>
-        <button
-          className="journey-map-link"
-          onClick={() => onMap(current.world, current.idea)}
-        >
-          <Map size={15} />
-          <span>Knowledge map</span>
-          <ArrowUpRight size={13} />
-        </button>
-      </header>
-      <section className="web-intro" aria-label="Exploration controls">
-        <div>
-          <span className="cinema-kicker">
-            FOLLOW ONE THREAD. DISCOVER THE CONNECTIONS.
-          </span>
-          <h2>
-            Your curiosity, <em>connected.</em>
-          </h2>
-        </div>
-        <div className="web-intro-actions">
-          <label className="world-picker">
-            <span className="sr-only">Starting world</span>
-            <select
-              value={world}
-              onChange={(e) => onWorld(e.target.value as World)}
-            >
-              {topics.map((topic) => (
-                <option key={topic.id} value={topic.id}>
-                  {subjectNames[topic.id as World].toUpperCase()}
-                </option>
-              ))}
-            </select>
-            <ChevronDown size={12} />
-          </label>
-          <button className="web-share" onClick={share}>
-            <Share2 size={14} /> Share web
+      <div className="web-content" inert={listOpen || resetOpen}>
+        <div className="journey-background" aria-hidden="true" />
+        <header className="journey-nav">
+          <button
+            className="cinema-brand"
+            onClick={onHome}
+            aria-label="Rabbit Hole — return to the descent"
+          >
+            <span className="cinema-logo">
+              <i />
+              <i />
+              <b />
+            </span>
+            rabbit hole<span className="logo-period">®</span>
           </button>
-        </div>
-      </section>
-      <nav
-        ref={subjectRail}
-        className="subject-rail"
-        aria-label="Explore subjects"
-      >
-        {topics.map((topic) => {
-          const id = topic.id as World;
-          const Icon = subjectIcons[id];
-          return (
-            <button
-              key={id}
-              aria-current={world === id ? "page" : undefined}
-              onClick={() => {
-                if (world !== id) onWorld(id);
-              }}
-            >
-              <Icon size={17} />
-              <span>{subjectNames[id]}</span>
-              <small>
-                {questions.filter((q) => q.world === id).length} questions
-              </small>
-              {(id === "football" || id === "music") && <b>NEW</b>}
-            </button>
-          );
-        })}
-      </nav>
-      <main className="web-workspace">
-        <QuestionWeb
-          world={world}
-          state={state}
-          onSelect={select}
-          onAnswer={(from, choice) => chooseFrom(from, choice, true)}
-          hovered={hover}
-        />
-        <aside
-          className="web-question-panel"
-          ref={panel}
-          aria-label="Selected question and answers"
-        >
-          <div className="web-panel-heading">
-            <span>
-              <GitBranch size={14} /> CHOOSE A BRANCH
-            </span>
-            <span>
-              {
-                state.edges.filter((id) => id.startsWith(`${current.id}:`))
-                  .length
-              }{" "}
-              / 3 EXPLORED
-            </span>
+          <div className="journey-nav-caption">
+            <span className="signal-light" /> EVERY ANSWER ADDS A THREAD.
           </div>
-          <div className="branch-progress" aria-hidden="true">
-            {current.answers.map((_, index) => (
-              <i
-                key={index}
-                className={
-                  state.edges.includes(`${current.id}:${index}`)
-                    ? "is-complete"
-                    : ""
-                }
-              />
-            ))}
-          </div>
-          <section className="question-stage" key={current.id}>
-            <span className="question-category">
-              {currentTopic.tags[0].toUpperCase()} <ArrowUpRight size={10} />{" "}
-              {current.id === world
-                ? "YOUR STARTING POINT"
-                : "A QUESTION IN YOUR WEB"}
+          <button
+            className="journey-map-link"
+            onClick={() => onMap(current.world, current.idea)}
+          >
+            <Map size={15} />
+            <span>Knowledge map</span>
+            <ArrowUpRight size={13} />
+          </button>
+        </header>
+        <section className="web-intro" aria-label="Exploration controls">
+          <div>
+            <span className="cinema-kicker">
+              FOLLOW ONE THREAD. DISCOVER THE CONNECTIONS.
             </span>
-            <h1 ref={heading} tabIndex={-1}>
-              {current.title}
-            </h1>
-            <p className="question-hint">{current.hint}</p>
-            {connection && (
-              <div className="answer-bridge">
-                <GitBranch size={14} />
-                <div>
-                  <span>
-                    CONNECTED THROUGH <strong>“{connection.text}”</strong>
-                  </span>
-                  <p>{connection.connection}</p>
-                </div>
-              </div>
-            )}
-            <div
-              className="answer-options"
-              role="group"
-              aria-label="Choose your answer"
-            >
-              {current.answers.map((answer, index) => {
-                const followed = state.edges.includes(`${current.id}:${index}`);
-                return (
-                  <button
-                    key={answer.text}
-                    className={`answer-option ${followed ? "branch-explored" : ""}`}
-                    onClick={() => chooseFrom(current.id, index)}
-                    onPointerEnter={() => setHover(index)}
-                    onPointerLeave={() => setHover(null)}
-                    onFocus={() => setHover(index)}
-                    onBlur={() => setHover(null)}
-                  >
-                    <span className="answer-letter">
-                      {String.fromCharCode(65 + index)}
-                    </span>
-                    <span>
-                      {answer.text}
-                      {followed && <small>ALREADY IN YOUR WEB</small>}
-                    </span>
-                    {followed ? (
-                      <Check size={16} />
-                    ) : (
-                      <ArrowUpRight size={16} />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-            <p className="web-branch-help">
-              <Sparkles size={12} /> Every branch stays. Return to any question
-              and try another answer.
-            </p>
-            <div className="branch-preview">
-              <span>
-                <ArrowUpRight size={12} />{" "}
-                {hover === null
-                  ? "ONE POSSIBLE NEXT QUESTION"
-                  : `FOLLOW ANSWER ${String.fromCharCode(65 + hover)}`}
-              </span>
-              <p>{questionById.get(current.answers[hover ?? 0].next)!.title}</p>
-            </div>
-            <button
-              className="journey-back"
-              disabled={!state.history.length}
-              onClick={() => setState((previous) => goBack(previous))}
-            >
-              <ArrowLeft size={14} /> Previous question
-            </button>
-          </section>
-          {source && (
-            <details className="question-context" key={`context-${current.id}`}>
-              <summary>
-                <Sparkles size={13} /> A little context{" "}
-                <span className="context-toggle" aria-hidden="true">
-                  +
-                </span>
-              </summary>
-              <p>{source.idea.summary}</p>
-              <p>{source.idea.uncertainty}</p>
-              <a href={source.idea.source.url} target="_blank" rel="noreferrer">
-                {source.idea.source.publisher}
-                <ArrowUpRight size={13} />
-              </a>
-            </details>
-          )}
-          <div className="web-panel-actions">
-            <button
-              ref={listButton}
-              onClick={() => {
-                setSearch("");
-                setListOpen(true);
-              }}
-            >
-              <GitBranch size={13} /> All {discovered.size} questions
-            </button>
-            <button
-              ref={resetButton}
-              disabled={!state.edges.length}
-              onClick={() => setResetOpen(true)}
-            >
-              <RotateCcw size={13} /> New web
+            <h2>
+              Your curiosity, <em>connected.</em>
+            </h2>
+          </div>
+          <div className="web-intro-actions">
+            <label className="world-picker">
+              <span className="sr-only">Starting world</span>
+              <select
+                value={world}
+                onChange={(e) => onWorld(e.target.value as World)}
+              >
+                {topics.map((topic) => (
+                  <option key={topic.id} value={topic.id}>
+                    {subjectNames[topic.id as World].toUpperCase()}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown size={12} />
+            </label>
+            <button className="web-share" onClick={share}>
+              <Share2 size={14} /> Share web
             </button>
           </div>
-        </aside>
-      </main>
-      {!listOpen && !resetOpen && (
+        </section>
         <nav
-          className="mobile-web-dock"
-          aria-label="Jump between web and question"
+          ref={subjectRail}
+          className="subject-rail"
+          aria-label="Explore subjects"
         >
-          <button
-            onClick={() => {
-              const map = document.getElementById("question-web");
-              map?.scrollIntoView({ block: "start", behavior: "instant" });
-              map
-                ?.querySelector<HTMLElement>(".web-viewport")
-                ?.focus({ preventScroll: true });
-            }}
-          >
-            <GitBranch size={17} />
-            <span>
-              View web<small>{discovered.size} questions connected</small>
-            </span>
-          </button>
-          <button
-            onClick={() => {
-              panel.current?.scrollIntoView({
-                block: "start",
-                behavior: "instant",
-              });
-              heading.current?.focus({ preventScroll: true });
-            }}
-          >
-            <ArrowRight size={17} />
-            <span>
-              Answer question<small>Follow your next thread</small>
-            </span>
-          </button>
+          {topics.map((topic) => {
+            const id = topic.id as World;
+            const Icon = subjectIcons[id];
+            return (
+              <button
+                key={id}
+                aria-current={world === id ? "page" : undefined}
+                onClick={() => {
+                  if (world !== id) onWorld(id);
+                }}
+              >
+                <Icon size={17} />
+                <span>{subjectNames[id]}</span>
+                <small>
+                  {questions.filter((q) => q.world === id).length} questions
+                </small>
+                {(id === "football" || id === "music") && <b>NEW</b>}
+              </button>
+            );
+          })}
         </nav>
-      )}
-      <footer className="journey-footer">
-        <span>
-          <span className="signal-light" />
-          {storageAvailable
-            ? "YOUR ENTIRE WEB IS SAVED ON THIS DEVICE"
-            : "STORAGE UNAVAILABLE — SHARE THE LINK TO KEEP YOUR WEB"}
-        </span>
-        <span>QUESTIONS CAN RECONNECT · YOUR BRANCHES STAY</span>
-      </footer>
-      {status && (
-        <div className="toast" role="status">
-          <Check size={16} />
-          {status}
-        </div>
-      )}
+        <main className="web-workspace">
+          <QuestionWeb
+            world={world}
+            state={state}
+            onSelect={select}
+            onAnswer={(from, choice) => chooseFrom(from, choice, true)}
+            hovered={hover}
+          />
+          <aside
+            className="web-question-panel"
+            ref={panel}
+            aria-label="Selected question and answers"
+          >
+            <div className="web-panel-heading">
+              <span>
+                <GitBranch size={14} /> CHOOSE A BRANCH
+              </span>
+              <span>
+                {
+                  state.edges.filter((id) => id.startsWith(`${current.id}:`))
+                    .length
+                }{" "}
+                / 3 EXPLORED
+              </span>
+            </div>
+            <div className="branch-progress" aria-hidden="true">
+              {current.answers.map((_, index) => (
+                <i
+                  key={index}
+                  className={
+                    state.edges.includes(`${current.id}:${index}`)
+                      ? "is-complete"
+                      : ""
+                  }
+                />
+              ))}
+            </div>
+            <section className="question-stage" key={current.id}>
+              <span className="question-category">
+                {currentTopic.tags[0].toUpperCase()} <ArrowUpRight size={10} />{" "}
+                {current.id === world
+                  ? "YOUR STARTING POINT"
+                  : "A QUESTION IN YOUR WEB"}
+              </span>
+              <h1 ref={heading} tabIndex={-1}>
+                {current.title}
+              </h1>
+              <p className="question-hint">{current.hint}</p>
+              {connection && (
+                <div className="answer-bridge">
+                  <GitBranch size={14} />
+                  <div>
+                    <span>
+                      CONNECTED THROUGH <strong>“{connection.text}”</strong>
+                    </span>
+                    <p>{connection.connection}</p>
+                  </div>
+                </div>
+              )}
+              <div
+                className="answer-options"
+                role="group"
+                aria-label="Choose your answer"
+              >
+                {current.answers.map((answer, index) => {
+                  const followed = state.edges.includes(
+                    `${current.id}:${index}`,
+                  );
+                  return (
+                    <button
+                      key={answer.text}
+                      className={`answer-option ${followed ? "branch-explored" : ""}`}
+                      onClick={() => chooseFrom(current.id, index)}
+                      onPointerEnter={() => setHover(index)}
+                      onPointerLeave={() => setHover(null)}
+                      onFocus={() => setHover(index)}
+                      onBlur={() => setHover(null)}
+                    >
+                      <span className="answer-letter">
+                        {String.fromCharCode(65 + index)}
+                      </span>
+                      <span>
+                        {answer.text}
+                        {followed && <small>ALREADY IN YOUR WEB</small>}
+                      </span>
+                      {followed ? (
+                        <Check size={16} />
+                      ) : (
+                        <ArrowUpRight size={16} />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="web-branch-help">
+                <Sparkles size={12} /> Every branch stays. Return to any
+                question and try another answer.
+              </p>
+              <div className="branch-preview">
+                <span>
+                  <ArrowUpRight size={12} />{" "}
+                  {hover === null
+                    ? "ONE POSSIBLE NEXT QUESTION"
+                    : `FOLLOW ANSWER ${String.fromCharCode(65 + hover)}`}
+                </span>
+                <p>
+                  {questionById.get(current.answers[hover ?? 0].next)!.title}
+                </p>
+              </div>
+              <button
+                className="journey-back"
+                disabled={!state.history.length}
+                onClick={() => setState((previous) => goBack(previous))}
+              >
+                <ArrowLeft size={14} /> Previous question
+              </button>
+            </section>
+            {source && (
+              <details
+                className="question-context"
+                key={`context-${current.id}`}
+              >
+                <summary>
+                  <Sparkles size={13} /> A little context{" "}
+                  <span className="context-toggle" aria-hidden="true">
+                    +
+                  </span>
+                </summary>
+                <p>{source.idea.summary}</p>
+                <p>{source.idea.uncertainty}</p>
+                <a
+                  href={source.idea.source.url}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {source.idea.source.publisher}
+                  <ArrowUpRight size={13} />
+                </a>
+              </details>
+            )}
+            <div className="web-panel-actions">
+              <button
+                ref={listButton}
+                onClick={() => {
+                  setSearch("");
+                  setListOpen(true);
+                }}
+              >
+                <GitBranch size={13} /> All {discovered.size} questions
+              </button>
+              <button
+                ref={resetButton}
+                disabled={!state.edges.length}
+                onClick={() => setResetOpen(true)}
+              >
+                <RotateCcw size={13} /> New web
+              </button>
+            </div>
+          </aside>
+        </main>
+        {!listOpen && !resetOpen && (
+          <nav
+            className="mobile-web-dock"
+            aria-label="Jump between web and question"
+          >
+            <button
+              onClick={() => {
+                const map = document.getElementById("question-web");
+                map?.scrollIntoView({ block: "start", behavior: "instant" });
+                map
+                  ?.querySelector<HTMLElement>(".web-viewport")
+                  ?.focus({ preventScroll: true });
+              }}
+            >
+              <GitBranch size={17} />
+              <span>
+                View web<small>{discovered.size} questions connected</small>
+              </span>
+            </button>
+            <button
+              onClick={() => {
+                panel.current?.scrollIntoView({
+                  block: "start",
+                  behavior: "instant",
+                });
+                heading.current?.focus({ preventScroll: true });
+              }}
+            >
+              <ArrowRight size={17} />
+              <span>
+                Answer question<small>Follow your next thread</small>
+              </span>
+            </button>
+          </nav>
+        )}
+        <footer className="journey-footer">
+          <span>
+            <span className="signal-light" />
+            {storageAvailable
+              ? "YOUR ENTIRE WEB IS SAVED ON THIS DEVICE"
+              : "STORAGE UNAVAILABLE — SHARE THE LINK TO KEEP YOUR WEB"}
+          </span>
+          <span>QUESTIONS CAN RECONNECT · YOUR BRANCHES STAY</span>
+        </footer>
+        {status && (
+          <div className="toast" role="status">
+            <Check size={16} />
+            {status}
+          </div>
+        )}
+      </div>
       {listOpen && (
         <div className="journey-dialog-backdrop" onClick={closeList}>
           <section

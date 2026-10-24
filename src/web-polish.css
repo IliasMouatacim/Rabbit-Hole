@@ -361,3 +361,6 @@
     scroll-margin-bottom: 90px;
   }
 }
+.web-content {
+  display: contents;
+}
