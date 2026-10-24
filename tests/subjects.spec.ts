@@ -40,6 +40,9 @@ test("football branches survive subject switching, search, reload and sharing", 
   await page
     .getByRole("button", { name: /One player who changes everything/ })
     .click();
+  await page
+    .getByRole("button", { name: "All connections", exact: true })
+    .click();
   await expect(
     page.locator('.web-node[data-node-id="football-pressing"]'),
   ).toHaveClass(/is-discovered/);
@@ -51,12 +54,18 @@ test("football branches survive subject switching, search, reload and sharing", 
     "young player",
   );
   await page.reload();
+  await page
+    .getByRole("button", { name: "All connections", exact: true })
+    .click();
   await expect(page.locator(".web-map-top")).toContainText(
     "4 QUESTIONS · 3 CONNECTIONS",
   );
   const context = await browser.newContext();
   const shared = await context.newPage();
   await shared.goto(page.url());
+  await shared
+    .getByRole("button", { name: "All connections", exact: true })
+    .click();
   await expect(shared.locator(".question-stage h1")).toContainText(
     "young player",
   );
