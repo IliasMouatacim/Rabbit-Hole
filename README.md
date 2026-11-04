@@ -1,6 +1,6 @@
 # Rabbit Hole
 
-A curiosity-driven exploration app built with React 19, TypeScript, Vite, Three.js, and Lenis. A cinematic opening leads into an interactive spiderweb of questions: each answer opens a related question while every earlier branch stays visible. Explore 50 curated questions and 150 answer connections across nature, the mind, the ocean, football, and music. The knowledge maps provide sources and context.
+A curiosity-driven exploration app built with React 19, TypeScript, Vite, Three.js, and Lenis. A playable ocean question opens the experience. Each answer then reveals a sourced discovery and an experiment before inviting another choice. Explore 50 curated questions and 150 answer connections across nature, the mind, the ocean, football, and music; the spiderweb preserves every branch.
 
 ## Develop
 
@@ -25,7 +25,13 @@ In the Linux cloud workspace, run `npm run test:cloud` to use the packaged Chrom
 
 ## Features
 
-- Scroll-pinned introduction, a pointer-reactive 3D field, live HUD, and horizontal expedition reel. A single animation loop drives the active scene; reduced-motion and WebGL fallbacks are supported.
+- Playable homepage: guess whether life can thrive without sunlight, discover a hydrothermal-vent food web, then enter the Ocean or follow the connection toward life elsewhere. The interaction works without WebGL. Question and subject counts come from the content.
+- Scroll-pinned storytelling, a 3D background, live HUD, and horizontal expedition reel. A single animation loop drives the active scene; reduced-motion and WebGL fallbacks are supported.
+- Choose → discover → play → choose again. Evidence, limitations, sources, and saving appear in the main discovery panel. Explore gives the reading room priority; My map expands the same connected spiderweb.
+- The discovery step survives a reload when browser storage is available; experiment settings reset. The pending step uses `rh-discovery-{world}` alongside the existing saved web.
+- Five illustrated experiments: break a network link, reinterpret a figure–ground image, change ocean depth, reposition teammates on a pitch, and compare an original melody at different tempos and timbres. Audio plays only after a click and stops when leaving the experiment.
+- Cross-subject discoveries explain the connection and highlight its two nodes and connecting edge. Saved discoveries use the existing collection and are marked on the web.
+- Share a journey summary containing the actual starting and current questions, up to three distinct visited discoveries, the first cross-world connection if present, and a miniature of the first eight visited questions. The link preserves the entire web, including alternative branches.
 - Three answer choices per question, each leading to a different follow-up with a connecting explanation. There is no score or final results screen; paths can reconnect to previously visited questions.
 - A radial spiderweb with solid explored connections and dashed possible branches. Questions shared by multiple branches reconnect to the same node.
 - An “Explored only” view hides unanswered possibilities without deleting anything. Turn it off to reveal every available branch again.
@@ -50,11 +56,17 @@ In the Linux cloud workspace, run `npm run test:cloud` to use the packaged Chrom
 
 This version uses a curated question graph, not live AI generation. Branches can continue indefinitely by reconnecting, but the set of questions is finite. Answer choices express viewpoints and curiosity rather than graded factual answers. Webs, collections, and notes remain in this browser without account sync; a shared web URL also contains the explored answers. Source links are provided for independent review; summaries are editorial content and should be reviewed before a public educational launch.
 
+Experiments are illustrations, not scientific simulations. The network models undirected connectivity with one failed link; the pitch uses static line clearance with a fixed defender and ball carrier; ocean scenes combine representative habitats rather than one surveyed location. The ambiguous image is not a psychological test, and the melody does not prescribe an emotional response. Their assumptions appear beside the controls. Input settings are temporary and are not included in shared web links.
+
+For an initial usability session, start at the playable Ocean question, descend to the vents, save a discovery, follow toward life elsewhere, and try an alternative answer. Ask the visitor to explain one thing they learned and note whether they voluntarily continue. Automated tests verify behavior and accessibility basics; they do not establish learning outcomes or a measured five-minute completion time.
+
 Data lives in `src/data.ts`, the interface in `src/main.tsx`, and styling in `src/styles.css`. Add a topic by following the `Topic` and `Idea` types. Keep source URLs and uncertainty notes attached to each idea.
 
 The branching graph lives in `src/questions.ts`; `src/extra-subjects.ts` contains the football and music questions and their context cards. Each question needs three distinct destinations and an existing evidence idea ID. Append new questions after existing entries: share links encode edge indices, so reordering published questions or answers would change older links.
 
 - `src/WebJourney.tsx` coordinates question selection, answers, saving, sharing, and dialogs.
+- `src/HeroDiscovery.tsx` provides the first playable question; `src/Discovery.tsx` presents the discovery step and evidence. `src/Experiments.tsx` contains the five small interactive illustrations.
+- `src/journey-story.ts` derives summaries from actual visited edges, and `src/JourneyStory.tsx` renders the miniature and sharing controls.
 - `src/QuestionWeb.tsx` renders nodes and connections and handles camera gestures. Camera updates use an event-driven animation frame without React state updates during dragging.
 - `src/web-layout.ts` assigns deterministic radial positions so branches stay in place when revisited.
 - `src/web-state.ts` validates connected edges, preserves branches, and encodes share URLs. Browser storage uses `rh-web-v2-{world}` and migrates `rh-journey-v1-{world}` trails. Legacy `?p=` links remain supported; new links use `?w=` and `at=`.
