@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./journey-fixture";
 import { questions, questionById, walkTrail, worlds } from "../src/questions";
 import { allIdeas } from "../src/data";
 

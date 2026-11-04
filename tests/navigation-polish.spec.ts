@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./journey-fixture";
 
 test("explored-only view removes previews without deleting branches or hiding new answers", async ({
   page,

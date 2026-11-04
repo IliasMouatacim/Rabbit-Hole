@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./journey-fixture";
 import { webFromHash } from "../src/web-state";
 
 test("adding subjects keeps existing shared edge indices compatible", () => {

@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./journey-fixture";
 
 test("mobile evidence detours return to the original cross-subject web without storage", async ({
   page,

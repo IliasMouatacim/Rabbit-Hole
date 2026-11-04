@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./journey-fixture";
 
 test("the canvas grows multiple branches and reconnects without duplicate nodes", async ({
   page,
@@ -91,6 +91,7 @@ test("touch gestures zoom the web while the active question remains usable", asy
   const page = await context.newPage();
   await page.goto("/#journey/forest?p=");
   await page.locator(".web-node").first().waitFor();
+  await page.getByRole("button", { name: /View web/ }).click();
   const area = await page.locator(".web-viewport").boundingBox();
   const before = await page.locator(".web-camera-controls>span").textContent();
   const cdp = await context.newCDPSession(page);

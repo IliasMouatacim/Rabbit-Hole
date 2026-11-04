@@ -12,12 +12,18 @@ export default function QuestionWeb({
   onSelect,
   onAnswer,
   hovered,
+  highlighted = [],
+  savedIdeas = [],
+  compact = false,
 }: {
   world: World;
   state: WebState;
   onSelect: (id: string) => void;
   onAnswer: (from: string, choice: number) => void;
   hovered: number | null;
+  highlighted?: string[];
+  savedIdeas?: string[];
+  compact?: boolean;
 }) {
   const viewport = useRef<HTMLDivElement>(null),
     plane = useRef<HTMLDivElement>(null),
@@ -42,8 +48,8 @@ export default function QuestionWeb({
   }, [world, state, focused]);
   const positions = useMemo(() => layoutWeb(world), [world]);
   const visibleKey = graph.nodes.slice().sort().join("|");
-  const latest = useRef({ state, graph, focused });
-  latest.current = { state, graph, focused };
+  const latest = useRef({ state, graph, focused, compact });
+  latest.current = { state, graph, focused, compact };
   useEffect(() => {
     const container = viewport.current!,
       content = plane.current!;
@@ -230,9 +236,11 @@ export default function QuestionWeb({
     container.addEventListener("pointercancel", up);
     container.addEventListener("click", click, true);
     container.addEventListener("keydown", key);
-    const observer = new ResizeObserver(() => fit(latest.current.focused));
+    const observer = new ResizeObserver(() =>
+      fit(latest.current.focused || latest.current.compact),
+    );
     observer.observe(container);
-    fit(false);
+    fit(latest.current.compact);
     return () => {
       disposed = true;
       cancelAnimationFrame(frame);
@@ -247,11 +255,11 @@ export default function QuestionWeb({
     };
   }, [positions]);
   useEffect(() => {
-    if (focused) controls.current.fit();
+    if (focused || compact) controls.current.fit();
     else controls.current.reveal();
-  }, [visibleKey, focused]);
+  }, [visibleKey, focused, compact]);
   useEffect(() => {
-    if (focused) {
+    if (focused || compact) {
       controls.current.fit();
       return;
     }
@@ -267,7 +275,7 @@ export default function QuestionWeb({
       y > area.clientHeight - 100
     )
       controls.current.center(state.selected);
-  }, [state.selected, positions, focused]);
+  }, [state.selected, positions, focused, compact]);
 
   return (
     <div className="web-map-shell" id="question-web">
@@ -348,7 +356,7 @@ export default function QuestionWeb({
               return (
                 <g
                   key={edge.id}
-                  className={`web-edge ${traversed ? "is-traversed" : ""} ${active ? "is-active" : ""}`}
+                  className={`web-edge ${traversed ? "is-traversed" : ""} ${active ? "is-active" : ""} ${highlighted.includes(edge.from) && highlighted.includes(edge.to) ? "connection-found" : ""}`}
                   data-edge-id={edge.id}
                 >
                   <path d={`M${a.x},${a.y} Q${mx},${my} ${b.x},${b.y}`} />
@@ -384,7 +392,7 @@ export default function QuestionWeb({
                 key={id}
                 data-node-id={id}
                 title={q.title}
-                className={`web-node ${selected ? "is-selected" : ""} ${known ? "is-discovered" : "is-preview"} topic-${q.world}`}
+                className={`web-node ${selected ? "is-selected" : ""} ${known ? "is-discovered" : "is-preview"} topic-${q.world} ${highlighted.includes(id) ? "connection-found" : ""}`}
                 style={{ left: p.x, top: p.y }}
                 aria-pressed={selected}
                 aria-label={
@@ -402,6 +410,11 @@ export default function QuestionWeb({
                     : incoming && onAnswer(incoming.from, incoming.choice)
                 }
               >
+                {savedIdeas.includes(q.idea) && (
+                  <b className="saved-node-dot" aria-label="Saved discovery">
+                    ★
+                  </b>
+                )}
                 <span className="web-node-top">
                   <i />
                   {selected

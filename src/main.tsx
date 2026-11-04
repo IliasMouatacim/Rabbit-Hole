@@ -257,6 +257,8 @@ function App() {
         <QuestionJourney
           key={journey}
           world={journey}
+          savedIds={saved.map((entry) => entry.id)}
+          onSave={toggleSave}
           onWorld={(id) => chooseTopic(topics.find((t) => t.id === id)!)}
           onHome={() => {
             setJourney(null);
