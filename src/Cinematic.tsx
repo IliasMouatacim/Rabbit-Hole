@@ -13,6 +13,8 @@ import {
   Plus,
 } from "lucide-react";
 import { topics } from "./data";
+import { questions } from "./questions";
+import HeroDiscovery from "./HeroDiscovery";
 import { createCuriosityScene } from "./curiosity-scene";
 import "./cinematic.css";
 
@@ -404,7 +406,7 @@ export default function Cinematic({
           </button>
         </nav>
         <button className="cinema-nav-cta" onClick={() => enter("forest")}>
-          Start exploring <ArrowUpRight size={15} />
+          Try your first question <ArrowUpRight size={15} />
         </button>
       </header>
       <div className="cinema-rail" aria-hidden="true">
@@ -445,23 +447,16 @@ export default function Cinematic({
                 </span>
               </button>
             </div>
-            <div
-              className="portal-control"
-              role="img"
-              aria-label="Interactive 3D curiosity field. Drag to rotate or focus and use the arrow keys."
-              tabIndex={0}
-            >
-              <span className="portal-cross cross-one">+</span>
-              <span className="portal-cross cross-two">+</span>
-              <div className="portal-caption">
-                <span>FIG. 001 — THE CURIOSITY FIELD</span>
-                <span>
-                  {webgl
-                    ? "DRAG TO EXPLORE · ↑ ↓ ← →"
-                    : "STATIC FIELD · WEBGL UNAVAILABLE"}
-                </span>
-              </div>
-            </div>
+            <HeroDiscovery
+              onEnter={(path) => {
+                window.history.replaceState(
+                  null,
+                  "",
+                  `#journey/ocean?p=${path}`,
+                );
+                enter("ocean");
+              }}
+            />
             <div className="hero-bottom">
               <span>
                 <span className="scroll-stem" /> SCROLL TO BEGIN THE DESCENT
@@ -486,9 +481,9 @@ export default function Cinematic({
             <div className="story-annotation">
               <span className="signal-light" /> CONNECTIONS ARE EVERYWHERE
               <div className="annotation-coordinates">
-                QUESTIONS / 035
+                QUESTIONS / {String(questions.length).padStart(3, "0")}
                 <br />
-                WORLDS / 003
+                WORLDS / {String(topics.length).padStart(3, "0")}
                 <br />
                 POSSIBILITIES / ∞
               </div>

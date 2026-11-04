@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test("the pinned journey responds to scrolling, dragging, and reel navigation", async ({
+test("the playable hero leads into pinned storytelling and reel navigation", async ({
   page,
 }) => {
   test.setTimeout(90000);
@@ -11,25 +11,9 @@ test("the pinned journey responds to scrolling, dragging, and reel navigation", 
     page.getByRole("heading", { name: /Curiosity has/ }),
   ).toBeVisible();
   await expect(page.locator(".cinematic")).toHaveClass(/has-webgl/);
-  const field = page.getByRole("img", {
-    name: /Interactive 3D curiosity field/,
-  });
-  await field.focus();
-  const before = await page.locator(".curiosity-canvas").screenshot();
-  await page.keyboard.press("ArrowRight");
-  await page.keyboard.press("ArrowDown");
-  await page.waitForTimeout(250);
-  const after = await page.locator(".curiosity-canvas").screenshot();
-  expect(before.equals(after)).toBe(false);
-  const box = await field.boundingBox();
-  await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2);
-  await page.mouse.down();
-  await page.mouse.move(
-    box!.x + box!.width / 2 + 100,
-    box!.y + box!.height / 2 + 20,
-    { steps: 5 },
-  );
-  await page.mouse.up();
+  await page.getByRole("button", { name: "Show me first" }).click();
+  await expect(page.locator(".hero-reveal")).toContainText("chemical energy");
+  await expect(page.getByLabel("Ocean depth")).toHaveValue("2800");
   await page.getByRole("button", { name: "The idea", exact: true }).click();
   await expect
     .poll(() => page.locator("[data-chapter]").textContent(), {
@@ -94,7 +78,7 @@ test("mobile experience fits the screen and can bypass the introduction", async 
   await page.getByRole("button", { name: "Reduce motion" }).click();
   await expect(page.locator(".cinematic")).toHaveClass(/motion-off/);
   await page
-    .getByRole("button", { name: "Start exploring", exact: true })
+    .getByRole("button", { name: "Try your first question", exact: true })
     .click();
   await expect(page.locator(".answer-option")).toHaveCount(3);
   await page
@@ -125,7 +109,7 @@ test("WebGL failure retains a usable visual fallback and entry point", async ({
   await expect(page.locator(".cinematic")).toHaveClass(/no-webgl/);
   await expect(page.locator(".portal-fallback")).toBeVisible();
   await page
-    .getByRole("button", { name: "Start exploring", exact: true })
+    .getByRole("button", { name: "Try your first question", exact: true })
     .click();
   await expect(page.locator(".answer-option")).toHaveCount(3);
 });
