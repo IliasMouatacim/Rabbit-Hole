@@ -112,6 +112,14 @@ test("an answer reveals evidence and a working network before the next choice", 
   await expect(page.locator(".question-stage h1")).toHaveText(
     "What makes a group smarter than its members?",
   );
+  await page.getByRole("button", { name: /2 See what you found/ }).click();
+  await expect(
+    page.getByRole("region", { name: "Your discovery" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: /Next question/ }).click();
+  await expect(
+    page.getByRole("group", { name: "Choose your answer" }),
+  ).toBeVisible();
 });
 
 test("mind, football and music provide distinct accessible interactions", async ({
@@ -123,7 +131,10 @@ test("mind, football and music provide distinct accessible interactions", async 
   await expect(page.locator(".experiment-result")).toContainText(
     "pale shape in the center",
   );
-  await page.getByLabel("Starting world").selectOption("football");
+  await page
+    .getByRole("navigation", { name: "Explore subjects" })
+    .getByRole("button", { name: /^Football/ })
+    .click();
   await page
     .getByRole("button", { name: /A system that makes everyone better/ })
     .click();
@@ -134,7 +145,10 @@ test("mind, football and music provide distinct accessible interactions", async 
   await expect(page.locator(".experiment-heading strong")).toHaveText(
     "3 open lanes",
   );
-  await page.getByLabel("Starting world").selectOption("music");
+  await page
+    .getByRole("navigation", { name: "Explore subjects" })
+    .getByRole("button", { name: /^Music/ })
+    .click();
   await page
     .getByRole("button", { name: /It expresses something I couldn’t say/ })
     .click();
@@ -162,7 +176,7 @@ test("cross-world discoveries explain and highlight the actual connection", asyn
     .getByRole("button", { name: /Everyone closes the next passing options/ })
     .click();
   await expect(page.locator(".connection-reward")).toContainText(
-    "football ↔ forest",
+    "Football ↔ Nature",
   );
   await expect(page.locator(".connection-reward")).toContainText(
     "coordinated network",

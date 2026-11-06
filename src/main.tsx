@@ -159,6 +159,25 @@ function App() {
   useEffect(() => {
     if (searchOpen) searchRef.current?.focus();
   }, [searchOpen]);
+  function centerMapNode() {
+    requestAnimationFrame(() => {
+      const container = mapRef.current;
+      const activeNode =
+        container?.querySelector<HTMLElement>(".idea-node.selected");
+      if (!container || !activeNode) return;
+      container.scrollLeft =
+        activeNode.offsetLeft -
+        container.clientWidth / 2 +
+        activeNode.offsetWidth / 2;
+      container.scrollTop =
+        activeNode.offsetTop -
+        container.clientHeight / 2 +
+        activeNode.offsetHeight / 2;
+    });
+  }
+  useEffect(() => {
+    centerMapNode();
+  }, []);
   function chooseTopic(t: Topic, n?: Idea) {
     if (landing || journey) window.scrollTo({ top: 0, behavior: "instant" });
     setLanding(false);
@@ -172,11 +191,13 @@ function App() {
     setMobileNav(false);
     setDetailTab("story");
     setDetailOpen(Boolean(n));
+    if (n) centerMapNode();
   }
   function selectNode(n: Idea) {
     setSelected(n);
     setDetailOpen(true);
     setDetailTab("story");
+    centerMapNode();
   }
   function resumeWeb() {
     if (!returnWeb) return;
@@ -608,11 +629,7 @@ function App() {
                       aria-label="Reset map view"
                       onClick={() => {
                         setZoom(1);
-                        mapRef.current?.scrollTo({
-                          left: 0,
-                          top: 0,
-                          behavior: "smooth",
-                        });
+                        centerMapNode();
                       }}
                     >
                       <Expand size={16} />

@@ -39,7 +39,7 @@
   opacity: 0.75;
 }
 .subject-rail b {
-  font: 8px monospace;
+  font: 11px monospace;
   letter-spacing: 0.5px;
   border: 1px solid currentColor;
   border-radius: 3px;
@@ -64,13 +64,13 @@
   box-shadow: 0 12px 35px #0002;
 }
 .web-panel-heading {
-  font-size: 8px;
+  font-size: 11px;
   margin-bottom: 10px;
   border: 0;
   padding-bottom: 0;
 }
 .web-panel-heading > span:last-child {
-  font-size: 7px;
+  font-size: 10px;
   color: #a1b585;
 }
 .branch-progress {
@@ -89,7 +89,7 @@
 }
 .web-question-panel .question-category {
   color: #aec28e;
-  font-size: 7px;
+  font-size: 10px;
 }
 .web-question-panel .question-stage h1 {
   color: #e6eedc;
@@ -123,7 +123,7 @@
   font-size: 10px;
 }
 .branch-explored small {
-  font-size: 7px;
+  font-size: 10px;
 }
 .branch-preview {
   background: #b6cf8510;
@@ -137,7 +137,7 @@
   display: flex;
   gap: 6px;
   align-items: center;
-  font: 7px monospace;
+  font: 10px monospace;
   letter-spacing: 0.8px;
   color: #a9c383;
 }
@@ -340,7 +340,7 @@
   }
   .mobile-web-dock small {
     display: block;
-    font-size: 8px;
+    font-size: 11px;
     margin-top: 3px;
     opacity: 0.8;
   }
@@ -374,7 +374,7 @@
   line-height: 1.45;
 }
 .web-experience .web-node-top {
-  font-size: 7px;
+  font-size: 10px;
   letter-spacing: 0.4px;
 }
 .web-experience .web-node-bottom {
@@ -410,6 +410,6 @@
     gap: 6px;
   }
   .web-experience .web-gesture-hint {
-    font-size: 8px;
+    font-size: 11px;
   }
 }

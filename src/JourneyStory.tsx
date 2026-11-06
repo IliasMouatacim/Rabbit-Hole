@@ -24,7 +24,8 @@ export default function JourneyStory({
   return (
     <details className="journey-story">
       <summary>
-        Your journey so far · {story.discoveries.length} discoveries to share
+        Your journey so far · {story.discoveries.length}{" "}
+        {story.discoveries.length === 1 ? "discovery" : "discoveries"} to share
       </summary>
       <p>
         I started with <strong>{story.start}</strong>

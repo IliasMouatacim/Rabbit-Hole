@@ -67,7 +67,7 @@
 }
 .web-edge-letter text {
   fill: #b8d793;
-  font: 9px monospace;
+  font: 11px monospace;
 }
 .web-node {
   position: absolute;
@@ -134,7 +134,7 @@
 }
 .web-node-top > span {
   margin-left: auto;
-  font-size: 7px;
+  font-size: 10px;
 }
 .web-node strong {
   font:
@@ -152,7 +152,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font: 5px monospace;
+  font: 9px monospace;
   letter-spacing: 0.7px;
   color: #90a573;
   margin-top: auto;
@@ -187,7 +187,7 @@
   padding: 21px 22px;
   pointer-events: none;
   background: linear-gradient(#10160ef2, transparent);
-  font: 7px monospace;
+  font: 10px monospace;
   letter-spacing: 1.2px;
   color: #7e9561;
 }
@@ -236,7 +236,7 @@
   background: #a4c87522;
 }
 .web-camera-controls > span {
-  font: 8px monospace;
+  font: 11px monospace;
   color: #98af79;
   width: 32px;
   text-align: center;
@@ -251,7 +251,7 @@
   display: flex;
   gap: 14px;
   align-items: center;
-  font-size: 8px;
+  font-size: 11px;
   color: #92a879;
   background: #10160ebb;
   padding: 6px;
@@ -276,7 +276,7 @@
   position: absolute;
   bottom: 7px;
   left: 25px;
-  font: 5px monospace;
+  font: 9px monospace;
   letter-spacing: 1px;
   color: #637c48;
   pointer-events: none;
@@ -302,7 +302,7 @@
     gap: 6px;
   }
   .web-legend {
-    font-size: 6px;
+    font-size: 10px;
     gap: 8px;
     padding: 4px;
   }
@@ -317,7 +317,7 @@
     padding: 5px;
   }
   .web-camera-controls > span {
-    font-size: 7px;
+    font-size: 10px;
     width: 26px;
   }
   .web-gesture-hint {

@@ -1,8 +1,16 @@
 import { useEffect, useRef } from "react";
 import { ArrowRight, Bookmark, Check } from "lucide-react";
 import { allIdeas } from "./data";
-import { questionById, type Question } from "./questions";
+import { questionById, type Question, type World } from "./questions";
 import Experiment from "./Experiments";
+
+const worldNames: Record<World, string> = {
+  forest: "Nature",
+  dreams: "The mind",
+  ocean: "Ocean",
+  football: "Football",
+  music: "Music",
+};
 
 export default function Discovery({
   question,
@@ -28,16 +36,33 @@ export default function Discovery({
   }, [question.id]);
   return (
     <section className="discovery-card" aria-label="Your discovery">
-      <div className="discovery-steps">
-        <span>01 Choose</span>
-        <strong>02 Discover & play</strong>
-        <span>03 Follow a thread</span>
-      </div>
+      <ol className="journey-steps" aria-label="Progress">
+        <li>
+          <button
+            type="button"
+            className="journey-step-link"
+            onClick={onContinue}
+          >
+            <b>
+              <Check size={11} />
+            </b>{" "}
+            Pick an answer
+          </button>
+        </li>
+        <li aria-current="step">
+          <b>2</b> See what you found
+        </li>
+        <li className="journey-steps-skip">
+          <button type="button" onClick={onContinue}>
+            Next question <ArrowRight size={13} />
+          </button>
+        </li>
+      </ol>
       {crossed && (
         <div className="connection-reward" role="status">
           <span>YOU FOUND A CONNECTION</span>
           <h2>
-            {previous.world} ↔ {question.world}
+            {worldNames[previous.world]} ↔ {worldNames[question.world]}
           </h2>
           <p>Two different worlds, one shared question.</p>
           <p>{connection}</p>

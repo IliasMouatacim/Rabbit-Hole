@@ -199,12 +199,12 @@
   align-items: center;
   gap: 20px;
   color: #acb994;
-  font: 8px monospace;
+  font: 11px monospace;
   letter-spacing: 1px;
 }
 .cinema-rail > span:first-child {
   writing-mode: vertical-rl;
-  font-size: 7px;
+  font-size: 10px;
   letter-spacing: 2px;
 }
 .cinema-rail > div {
@@ -237,7 +237,7 @@
   display: flex;
   gap: 12px;
   align-items: center;
-  font: 9px monospace;
+  font: 11px monospace;
   letter-spacing: 1.6px;
   color: #a4b48c;
 }
@@ -367,12 +367,12 @@
   flex-direction: column;
   gap: 10px;
   pointer-events: none;
-  font: 7px monospace;
+  font: 10px monospace;
   letter-spacing: 1.5px;
   color: #9caa83;
 }
 .portal-caption > span:last-child {
-  font-size: 6px;
+  font-size: 10px;
   color: #657454;
 }
 .hero-bottom {
@@ -391,7 +391,7 @@
   display: flex;
   gap: 13px;
   align-items: center;
-  font: 8px monospace;
+  font: 11px monospace;
   letter-spacing: 1.4px;
 }
 .scroll-stem {
@@ -430,14 +430,14 @@
   display: flex;
   align-items: center;
   gap: 9px;
-  font: 8px monospace;
+  font: 11px monospace;
   letter-spacing: 1.2px;
   color: #a8b794;
 }
 .annotation-coordinates {
   position: absolute;
   top: 50px;
-  font-size: 7px;
+  font-size: 10px;
   line-height: 2.1;
   color: #687b55;
   letter-spacing: 1.5px;
@@ -451,7 +451,7 @@
   will-change: transform, opacity;
 }
 .cinema-kicker {
-  font: 8px monospace;
+  font: 11px monospace;
   letter-spacing: 1.8px;
   color: #99aa81;
 }
@@ -516,7 +516,7 @@
   position: absolute;
   left: 8vw;
   bottom: 95px;
-  font: 7px monospace;
+  font: 10px monospace;
   letter-spacing: 1.8px;
   color: #7e8e6b;
 }
@@ -596,7 +596,7 @@
   left: 30px;
   right: 30px;
   top: 24px;
-  font: 7px monospace;
+  font: 10px monospace;
   color: #9fb683;
   letter-spacing: 1.3px;
   z-index: 1;
@@ -614,7 +614,7 @@
   z-index: 1;
 }
 .world-number {
-  font: 8px monospace;
+  font: 11px monospace;
   color: #c0dca0;
   border: 1px solid #a1bf7d66;
   border-radius: 50%;
@@ -660,7 +660,7 @@
   bottom: 19px;
   display: flex;
   justify-content: space-between;
-  font: 6px monospace;
+  font: 10px monospace;
   letter-spacing: 1.3px;
   color: #8da476;
   padding-top: 14px;
@@ -858,7 +858,7 @@
   color: #d0dfb7;
 }
 .reel-counter > span {
-  font-size: 9px;
+  font-size: 11px;
   color: #6a7b54;
   margin-left: 10px;
 }
@@ -889,7 +889,7 @@
   gap: 10px;
 }
 .reel-controls > span {
-  font: 7px monospace;
+  font: 10px monospace;
   letter-spacing: 1.5px;
   color: #788c60;
   margin-right: 20px;
@@ -948,7 +948,7 @@
   justify-content: center;
   color: #8f9d7b;
   margin: 35px 0 130px;
-  font-size: 9px;
+  font-size: 11px;
 }
 .outro-facts span {
   display: flex;
@@ -962,7 +962,7 @@
   justify-content: space-between;
   padding-top: 25px;
   color: #697b55;
-  font: 7px monospace;
+  font: 10px monospace;
   letter-spacing: 1.2px;
 }
 .cinema-outro footer button {
@@ -985,7 +985,7 @@
   border-top: 1px solid #a2bc761a;
   background: #10140feb;
   backdrop-filter: blur(10px);
-  font: 7px monospace;
+  font: 10px monospace;
   letter-spacing: 1.3px;
   color: #7b8c66;
   z-index: 20;
@@ -1277,7 +1277,7 @@
   .cinema-nav-cta {
     padding: 10px 11px;
     gap: 13px;
-    font-size: 9px;
+    font-size: 11px;
   }
   .cinema-rail {
     right: 9px;
@@ -1285,14 +1285,14 @@
     gap: 12px;
   }
   .cinema-rail > span:first-child {
-    font-size: 5px;
+    font-size: 9px;
     letter-spacing: 1.4px;
   }
   .cinema-rail > div {
     height: 65px;
   }
   .cinema-rail > span:last-child {
-    font-size: 6px;
+    font-size: 10px;
   }
   .cinema-sticky {
     height: 100svh;
@@ -1305,7 +1305,7 @@
     padding: 110px 26px 55px;
   }
   .hero-eyebrow {
-    font-size: 6px;
+    font-size: 10px;
     gap: 8px;
     letter-spacing: 1px;
   }
@@ -1354,12 +1354,12 @@
     top: 49%;
   }
   .portal-caption {
-    font-size: 6px;
+    font-size: 10px;
     gap: 7px;
     bottom: 0;
   }
   .portal-caption > span:last-child {
-    font-size: 5px;
+    font-size: 9px;
   }
   .portal-cross {
     font-size: 15px;
@@ -1377,12 +1377,12 @@
     padding-top: 17px;
   }
   .hero-bottom > span:first-child {
-    font-size: 6px;
+    font-size: 10px;
     letter-spacing: 0.8px;
     gap: 8px;
   }
   .hero-bottom p {
-    font-size: 9px;
+    font-size: 11px;
     margin: 0;
   }
   .hero-index {
@@ -1401,7 +1401,7 @@
   .story-annotation {
     top: 113px;
     left: 27px;
-    font-size: 6px;
+    font-size: 10px;
   }
   .annotation-coordinates {
     display: none;
@@ -1414,7 +1414,7 @@
     z-index: 1;
   }
   .cinema-kicker {
-    font-size: 6px;
+    font-size: 10px;
     letter-spacing: 1.3px;
   }
   .story-copy h2 {
@@ -1428,7 +1428,7 @@
     line-height: 1.9;
   }
   .story-principles {
-    font-size: 9px;
+    font-size: 11px;
     gap: 10px;
     margin: 22px 0;
   }
@@ -1438,7 +1438,7 @@
     gap: 40px;
   }
   .story-footnote {
-    font-size: 5px;
+    font-size: 9px;
     letter-spacing: 1.2px;
     left: 27px;
     bottom: 66px;
@@ -1467,7 +1467,7 @@
     margin-top: 14px;
   }
   .reel-note {
-    font-size: 8px;
+    font-size: 11px;
     margin-right: 5px;
     line-height: 1.6;
     margin-bottom: 4px;
@@ -1486,7 +1486,7 @@
     left: 20px;
     right: 20px;
     top: 20px;
-    font-size: 5px;
+    font-size: 9px;
     letter-spacing: 1px;
   }
   .world-card-copy {
@@ -1507,7 +1507,7 @@
   .world-number {
     height: 25px;
     width: 25px;
-    font-size: 7px;
+    font-size: 10px;
     margin-bottom: 18px;
   }
   .world-card-copy > button {
@@ -1518,7 +1518,7 @@
     left: 20px;
     right: 20px;
     bottom: 18px;
-    font-size: 5px;
+    font-size: 9px;
     letter-spacing: 0.5px;
   }
   .world-card-foot > span {
@@ -1555,7 +1555,7 @@
     font-size: 11px;
   }
   .reel-counter > span {
-    font-size: 8px;
+    font-size: 11px;
     margin-left: 5px;
   }
   .reel-controls {
@@ -1599,13 +1599,13 @@
     flex-direction: column;
     align-items: center;
     gap: 14px;
-    font-size: 9px;
+    font-size: 11px;
     margin: 28px 0 85px;
   }
   .cinema-outro footer {
     flex-wrap: wrap;
     gap: 18px;
-    font-size: 6px;
+    font-size: 10px;
     letter-spacing: 1px;
   }
   .cinema-outro footer > span:nth-child(2) {
@@ -1614,7 +1614,7 @@
   .cinema-hud {
     height: 39px;
     padding: 0 20px;
-    font-size: 5px;
+    font-size: 9px;
     letter-spacing: 0.8px;
   }
   .hud-coordinate,
@@ -1622,7 +1622,7 @@
     display: none;
   }
   .cinema-hud button {
-    font-size: 6px;
+    font-size: 10px;
     gap: 5px;
   }
   .cinema-hud button svg {
@@ -1663,7 +1663,7 @@
 }
 .outro-subjects > span {
   width: 100%;
-  font: 9px monospace;
+  font: 11px monospace;
   letter-spacing: 1.6px;
   color: #9aaf7d;
 }

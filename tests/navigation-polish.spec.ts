@@ -80,3 +80,20 @@ test("mobile jump controls and previous-question history work after reload", asy
     ),
   ).toBe(true);
 });
+
+test("letter keys answer directly and step pills toggle between discovery and question", async ({
+  page,
+}) => {
+  await page.goto("/#journey/forest?p=");
+  await expect(page.locator(".question-stage h1")).toHaveText(
+    "Can a forest think?",
+  );
+  await page.keyboard.press("a");
+  await expect(page.locator(".question-stage h1")).toHaveText(
+    "What makes a group smarter than its members?",
+  );
+  await page.keyboard.press("2");
+  await expect(page.locator(".question-stage h1")).not.toHaveText(
+    "What makes a group smarter than its members?",
+  );
+});

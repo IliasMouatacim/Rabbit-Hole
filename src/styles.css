@@ -116,7 +116,7 @@ button:hover:not(:disabled) {
   white-space: nowrap;
 }
 .search-trigger kbd {
-  font-size: 9px;
+  font-size: 11px;
   color: #798570;
   margin-left: auto;
 }
@@ -162,7 +162,7 @@ button:hover:not(:disabled) {
   padding: 0 12px;
   display: flex;
   justify-content: space-between;
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 1.5px;
   color: #79846e;
 }
@@ -267,7 +267,7 @@ button:hover:not(:disabled) {
 }
 .local-profile div span {
   display: block;
-  font-size: 9px;
+  font-size: 11px;
   color: #7e8b71;
   margin-top: 4px;
 }
@@ -307,14 +307,14 @@ button:hover:not(:disabled) {
   gap: 20px;
 }
 .edition {
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 1.6px;
   color: #929886;
 }
 .beta {
   border: 1px solid #d9ddce;
   border-radius: 4px;
-  font-size: 8px;
+  font-size: 11px;
   padding: 5px 7px;
   letter-spacing: 1px;
   color: #788365;
@@ -327,7 +327,7 @@ button:hover:not(:disabled) {
   gap: 20px;
 }
 .eyebrow {
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 1.65px;
   font-weight: 600;
   color: #7b856c;
@@ -405,13 +405,13 @@ h1 > span {
   color: #6e8553;
 }
 .overline {
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 1.4px;
   color: #8a927f;
   font-weight: 600;
 }
 .exploration-label .overline {
-  font-size: 7px;
+  font-size: 10px;
 }
 .exploration-label h2 {
   font-size: 13px;
@@ -428,7 +428,7 @@ h1 > span {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 9px;
+  font-size: 11px;
   color: #8c9481;
 }
 .live-label > span {
@@ -480,7 +480,7 @@ h1 > span {
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 1.2px;
   color: #7e8971;
 }
@@ -543,7 +543,7 @@ h1 > span {
   border: 1px solid #d4dec5;
 }
 .node-label {
-  font-size: 6px;
+  font-size: 10px;
   letter-spacing: 0.8px;
   color: #9ba48f;
   margin-bottom: 6px;
@@ -563,7 +563,7 @@ h1 > span {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  font-size: 7px;
+  font-size: 10px;
   color: #919b81;
 }
 .node-footer > span {
@@ -598,7 +598,7 @@ h1 > span {
   color: #7a8e5c;
 }
 .root-node .node-footer {
-  font-size: 7px;
+  font-size: 10px;
   letter-spacing: 0.8px;
   color: #708153;
 }
@@ -659,7 +659,7 @@ h1 > span {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 8px;
+  font-size: 11px;
   color: #929c84;
 }
 .map-legend > span {
@@ -689,7 +689,7 @@ h1 > span {
   background: #edf2e2;
 }
 .map-controls > span {
-  font-size: 9px;
+  font-size: 11px;
   color: #89947a;
   min-width: 32px;
   text-align: center;
@@ -754,7 +754,7 @@ h1 > span {
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 7px;
+  font-size: 10px;
   letter-spacing: 0.7px;
   color: #c5d7ae;
   z-index: 2;
@@ -764,7 +764,7 @@ h1 > span {
   right: 16px;
   bottom: 12px;
   font-family: monospace;
-  font-size: 8px;
+  font-size: 11px;
   color: #8b9d77;
 }
 .detail-content {
@@ -780,7 +780,7 @@ h1 > span {
 }
 .detail-eyebrow > span:last-child {
   margin-left: auto;
-  font-size: 6px;
+  font-size: 10px;
   letter-spacing: 0.7px;
   color: #a1a58f;
 }
@@ -812,7 +812,7 @@ h1 > span {
 }
 .detail-tabs button {
   padding: 0 0 11px;
-  font-size: 9px;
+  font-size: 11px;
   color: #98a08b;
   position: relative;
 }
@@ -829,7 +829,7 @@ h1 > span {
   right: 0;
 }
 .detail-tabs button > span {
-  font-size: 7px;
+  font-size: 10px;
   background: #eff2e7;
   border-radius: 3px;
   padding: 1px 3px;
@@ -854,12 +854,12 @@ h1 > span {
   margin: 17px 0;
 }
 .wonder-box strong {
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 550;
   color: #718456;
 }
 .wonder-box p {
-  font-size: 9px;
+  font-size: 11px;
   color: #8b947d;
   line-height: 1.75;
   margin: 6px 0 0;
@@ -928,7 +928,7 @@ h1 > span {
   margin-top: 8px;
 }
 .evidence-body small {
-  font-size: 9px;
+  font-size: 11px;
   line-height: 1.7;
   display: block;
   color: #9ba18f;
@@ -941,7 +941,7 @@ h1 > span {
   background: #f4f7ed;
 }
 .source-card > span {
-  font-size: 7px;
+  font-size: 10px;
   letter-spacing: 1px;
   color: #8c9978;
 }
@@ -956,7 +956,7 @@ h1 > span {
   color: #596e3f;
 }
 .source-card p {
-  font-size: 9px;
+  font-size: 11px;
   margin: 8px 0 0;
   color: #9aa58b;
 }
@@ -977,7 +977,7 @@ h1 > span {
   color: #929b84;
 }
 .explore-footer button {
-  font-size: 9px;
+  font-size: 11px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1102,7 +1102,7 @@ h1 > span {
   color: #8b947d;
 }
 .saved-card label {
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 1px;
   color: #8d987f;
   display: block;
@@ -1224,7 +1224,7 @@ h1 > span {
   gap: 12px;
   background: #edf2e5;
   padding: 13px 20px;
-  font-size: 9px;
+  font-size: 11px;
   color: #8a9a77;
 }
 .search-footer > span {
@@ -1233,7 +1233,7 @@ h1 > span {
   gap: 7px;
 }
 .search-footer kbd {
-  font-size: 8px;
+  font-size: 11px;
 }
 .no-results {
   text-align: center;
@@ -1318,10 +1318,10 @@ h1 > span {
     font-size: 21px;
   }
   .node-label {
-    font-size: 7px;
+    font-size: 10px;
   }
   .node-footer {
-    font-size: 8px;
+    font-size: 11px;
   }
   .idea-node {
     min-height: 135px;
@@ -1352,14 +1352,14 @@ h1 > span {
     font-size: 23px;
   }
   .sidebar-caption {
-    font-size: 7px;
+    font-size: 10px;
     letter-spacing: 1px;
   }
   .search-trigger {
-    font-size: 9px;
+    font-size: 11px;
   }
   .search-trigger kbd {
-    font-size: 8px;
+    font-size: 11px;
   }
   .main {
     margin-left: 210px;
@@ -1382,7 +1382,7 @@ h1 > span {
   }
   .new-question {
     padding: 10px;
-    font-size: 9px;
+    font-size: 11px;
   }
   .exploration-heading,
   .exploration-workspace {
@@ -1406,7 +1406,7 @@ h1 > span {
     padding-right: 25px;
   }
   .map-legend {
-    font-size: 7px;
+    font-size: 10px;
   }
   .map-bottom {
     padding: 15px 10px;
@@ -1418,7 +1418,7 @@ h1 > span {
     min-width: 28px;
   }
   .edition {
-    font-size: 7px;
+    font-size: 10px;
   }
 }
 @media (max-width: 1050px) {
@@ -1435,7 +1435,7 @@ h1 > span {
     width: 27px;
   }
   .sidebar-caption {
-    font-size: 6px;
+    font-size: 10px;
   }
   .main {
     margin-left: 190px;
@@ -1540,7 +1540,7 @@ h1 > span {
     font-size: 10px;
   }
   .explore-footer button {
-    font-size: 8px;
+    font-size: 11px;
   }
   .collection-header {
     display: block;
@@ -1563,7 +1563,7 @@ h1 > span {
     width: 32px;
   }
   .sidebar-caption {
-    font-size: 7px;
+    font-size: 10px;
   }
   .trail {
     font-size: 11px;
@@ -1613,7 +1613,7 @@ h1 > span {
     max-width: 300px;
   }
   .eyebrow {
-    font-size: 7px;
+    font-size: 10px;
     letter-spacing: 1.2px;
   }
   .new-question {
@@ -1637,7 +1637,7 @@ h1 > span {
     height: 30px;
   }
   .live-label {
-    font-size: 8px;
+    font-size: 11px;
   }
   .exploration-actions {
     gap: 10px;
@@ -1654,7 +1654,7 @@ h1 > span {
     padding: 17px 14px;
   }
   .map-top > span:first-child {
-    font-size: 7px;
+    font-size: 10px;
   }
   .map-hint {
     display: none;
@@ -1674,7 +1674,7 @@ h1 > span {
     font-size: 16px;
   }
   .node-label {
-    font-size: 6px;
+    font-size: 10px;
   }
   .idea-node {
     min-height: 113px;
@@ -1689,7 +1689,7 @@ h1 > span {
     padding: 13px;
   }
   .map-legend {
-    font-size: 7px;
+    font-size: 10px;
   }
   .map-controls button {
     padding: 4px;
@@ -1742,10 +1742,10 @@ h1 > span {
     font-size: 12px;
   }
   .search-result small {
-    font-size: 9px;
+    font-size: 11px;
   }
   .search-footer {
-    font-size: 8px;
+    font-size: 11px;
     padding: 13px;
   }
   .search-footer kbd {
@@ -1789,3 +1789,20 @@ h1 > span {
   outline: 2px solid #597a36;
   outline-offset: 3px;
 }
+
+/* The sidebar link must be styled even when cinematic.css has not loaded yet. */
+.sidebar .back-to-descent {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-top: 14px;
+  padding: 14px 10px 0;
+  border-top: 1px solid #35402b;
+  color: #9bae87;
+  font-size: 12px;
+}
+.sidebar .back-to-descent:hover {
+  color: #d7ecb5;
+}
+

@@ -119,9 +119,15 @@ test("starting worlds keep separate webs and restart replaces only the selected 
   page,
 }) => {
   await page.goto("/#journey/forest?p=0");
-  await page.getByLabel("Starting world").selectOption("dreams");
+  await page
+    .getByRole("navigation", { name: "Explore subjects" })
+    .getByRole("button", { name: /^The mind/ })
+    .click();
   await page.getByRole("button", { name: /The emotions feel real/ }).click();
-  await page.getByLabel("Starting world").selectOption("forest");
+  await page
+    .getByRole("navigation", { name: "Explore subjects" })
+    .getByRole("button", { name: /^Nature/ })
+    .click();
   await expect(page.locator(".question-stage h1")).toHaveText(
     "What makes a group smarter than its members?",
   );
@@ -135,7 +141,10 @@ test("starting worlds keep separate webs and restart replaces only the selected 
   await expect(page.locator(".question-stage h1")).toHaveText(
     "Can a forest think?",
   );
-  await page.getByLabel("Starting world").selectOption("dreams");
+  await page
+    .getByRole("navigation", { name: "Explore subjects" })
+    .getByRole("button", { name: /^The mind/ })
+    .click();
   await expect(page.locator(".question-stage h1")).toHaveText(
     "Can an imaginary experience have real consequences?",
   );

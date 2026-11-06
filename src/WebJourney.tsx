@@ -4,7 +4,7 @@ import {
   ArrowRight,
   ArrowUpRight,
   Check,
-  ChevronDown,
+  Columns2,
   GitBranch,
   Map,
   RotateCcw,
@@ -39,6 +39,10 @@ import "./questions.css";
 import "./web-journey.css";
 import "./web-polish.css";
 import "./discovery.css";
+import "./usability.css";
+
+const plural = (count: number, word: string) =>
+  `${count} ${word}${count === 1 ? "" : "s"}`;
 
 const subjectIcons = {
   forest: TreePine,
@@ -167,9 +171,25 @@ export default function WebJourney({
       document.body.style.overflow = overflow;
     };
   }, [listOpen, resetOpen]);
-  function revealPanel() {
-    if (window.innerWidth <= 800)
-      panel.current?.scrollIntoView({ block: "start", behavior: "instant" });
+  function revealPanel(always = false) {
+    const element = panel.current;
+    if (!element) return;
+    // On small screens the panel is below the map; on larger screens it may
+    // have been scrolled past while reading a long discovery. Either way, bring
+    // the top of the next step back into view so the heading is never cut off.
+    if (
+      always ||
+      window.innerWidth <= 800 ||
+      element.getBoundingClientRect().top < 0
+    )
+      element.scrollIntoView({ block: "start", behavior: "instant" });
+  }
+  function continueToChoice() {
+    setDiscovering(false);
+    requestAnimationFrame(() => {
+      revealPanel();
+      heading.current?.focus({ preventScroll: true });
+    });
   }
   function chooseFrom(from: string, choice: number, fromCanvas = false) {
     setState((previous) =>
@@ -177,8 +197,27 @@ export default function WebJourney({
     );
     setDiscovering(true);
     setMapExpanded(false);
-    if (fromCanvas || window.innerWidth <= 800) revealPanel();
+    requestAnimationFrame(() => revealPanel(fromCanvas));
   }
+  // Answer with A/B/C or 1/2/3 while choosing; skip when typing or a dialog is open.
+  useEffect(() => {
+    if (discovering || listOpen || resetOpen) return;
+    const handler = (event: KeyboardEvent) => {
+      if (event.ctrlKey || event.metaKey || event.altKey || event.repeat)
+        return;
+      const target = event.target as HTMLElement | null;
+      if (target?.closest("input, textarea, select, [contenteditable]"))
+        return;
+      const index = ["a", "b", "c"].indexOf(event.key.toLowerCase());
+      const digit = ["1", "2", "3"].indexOf(event.key);
+      const choice = index >= 0 ? index : digit;
+      if (choice < 0 || choice >= current.answers.length) return;
+      event.preventDefault();
+      chooseFrom(current.id, choice);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  });
   function select(id: string) {
     setState((previous) => selectDiscovered(world, previous, id));
     setListOpen(false);
@@ -253,97 +292,76 @@ export default function WebJourney({
             </span>
             rabbit hole<span className="logo-period">®</span>
           </button>
-          <div className="journey-nav-caption">
-            <span className="signal-light" /> EVERY ANSWER ADDS A THREAD.
-          </div>
-          <button
-            className="journey-map-link"
-            onClick={() => onMap(current.world, current.idea)}
-          >
-            <Map size={15} />
-            <span>Knowledge map</span>
-            <ArrowUpRight size={13} />
-          </button>
-        </header>
-        <section className="web-intro" aria-label="Exploration controls">
-          <div>
-            <span className="cinema-kicker">
-              FOLLOW ONE THREAD. DISCOVER THE CONNECTIONS.
-            </span>
-            <h2>
-              Your curiosity, <em>connected.</em>
-            </h2>
-          </div>
-          <div className="web-intro-actions">
-            <label className="world-picker">
-              <span className="sr-only">Starting world</span>
-              <select
-                value={world}
-                onChange={(e) => onWorld(e.target.value as World)}
-              >
-                {topics.map((topic) => (
-                  <option key={topic.id} value={topic.id}>
-                    {subjectNames[topic.id as World].toUpperCase()}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown size={12} />
-            </label>
+          <div className="journey-nav-actions">
             <button className="web-share" onClick={share}>
               <Share2 size={14} /> Share web
             </button>
+            <button
+              className="journey-map-link"
+              onClick={() => onMap(current.world, current.idea)}
+              title="Browse every topic as a reading map"
+            >
+              <Map size={15} />
+              <span>Knowledge map</span>
+              <ArrowUpRight size={13} />
+            </button>
           </div>
-        </section>
-        <nav
-          ref={subjectRail}
-          className="subject-rail"
-          aria-label="Explore subjects"
-        >
-          {topics.map((topic) => {
-            const id = topic.id as World;
-            const Icon = subjectIcons[id];
-            return (
-              <button
-                key={id}
-                aria-current={world === id ? "page" : undefined}
-                onClick={() => {
-                  if (world !== id) onWorld(id);
-                }}
-              >
-                <Icon size={17} />
-                <span>{subjectNames[id]}</span>
-                <small>
-                  {questions.filter((q) => q.world === id).length} questions
-                </small>
-                {(id === "football" || id === "music") && <b>NEW</b>}
-              </button>
-            );
-          })}
-        </nav>
-        <nav className="journey-views" aria-label="Journey views">
-          <button
-            aria-pressed={!mapExpanded}
-            onClick={() => {
-              setMapExpanded(false);
-              revealPanel();
-            }}
+        </header>
+        <div className="journey-toolbar">
+          <nav
+            ref={subjectRail}
+            className="subject-rail"
+            aria-label="Explore subjects"
           >
-            Explore
-          </button>
-          <button
-            aria-pressed={mapExpanded}
-            onClick={() => {
-              setMapExpanded(true);
-              requestAnimationFrame(() =>
-                document
-                  .getElementById("question-web")
-                  ?.scrollIntoView({ block: "center", behavior: "instant" }),
+            {topics.map((topic) => {
+              const id = topic.id as World;
+              const Icon = subjectIcons[id];
+              return (
+                <button
+                  key={id}
+                  aria-current={world === id ? "page" : undefined}
+                  onClick={() => {
+                    if (world !== id) onWorld(id);
+                  }}
+                >
+                  <Icon size={17} />
+                  <span>{subjectNames[id]}</span>
+                  <small>
+                    {plural(
+                      questions.filter((q) => q.world === id).length,
+                      "question",
+                    )}
+                  </small>
+                  {(id === "football" || id === "music") && <b>NEW</b>}
+                </button>
               );
-            }}
-          >
-            My map · {discovered.size} questions
-          </button>
-        </nav>
+            })}
+          </nav>
+          <nav className="journey-views" aria-label="Journey views">
+            <button
+              aria-pressed={!mapExpanded}
+              onClick={() => {
+                setMapExpanded(false);
+                revealPanel(true);
+              }}
+            >
+              <Columns2 size={15} /> Question view
+            </button>
+            <button
+              aria-pressed={mapExpanded}
+              onClick={() => {
+                setMapExpanded(true);
+                requestAnimationFrame(() =>
+                  document
+                    .getElementById("question-web")
+                    ?.scrollIntoView({ block: "center", behavior: "instant" }),
+                );
+              }}
+            >
+              <Map size={15} /> Big map · {plural(discovered.size, "question")}
+            </button>
+          </nav>
+        </div>
         <main className="web-workspace">
           <QuestionWeb
             world={world}
@@ -374,27 +392,37 @@ export default function WebJourney({
                 connection={connection?.connection}
                 saved={savedIds.includes(current.idea)}
                 onSave={onSave}
-                onContinue={() => {
-                  setDiscovering(false);
-                  requestAnimationFrame(() =>
-                    heading.current?.focus({ preventScroll: true }),
-                  );
-                }}
+                onContinue={continueToChoice}
               />
             )}
             <div hidden={discovering} className="question-choice-content">
-              <div className="web-panel-heading">
-                <span>
-                  <GitBranch size={14} /> CHOOSE A BRANCH
-                </span>
-                <span>
+              <ol className="journey-steps" aria-label="Progress">
+                <li aria-current="step">
+                  <b>1</b> Pick an answer
+                </li>
+                <li>
+                  {state.edges.length > 0 ? (
+                    <button
+                      type="button"
+                      className="journey-step-link"
+                      onClick={() => setDiscovering(true)}
+                    >
+                      <b>2</b> See what you found
+                    </button>
+                  ) : (
+                    <>
+                      <b>2</b> See what you found
+                    </>
+                  )}
+                </li>
+                <li className="journey-steps-count">
                   {
                     state.edges.filter((id) => id.startsWith(`${current.id}:`))
                       .length
                   }{" "}
-                  / 3 EXPLORED
-                </span>
-              </div>
+                  of 3 answers tried here
+                </li>
+              </ol>
               <div className="branch-progress" aria-hidden="true">
                 {current.answers.map((_, index) => (
                   <i
@@ -465,18 +493,23 @@ export default function WebJourney({
                     );
                   })}
                 </div>
-                {!state.edges.length && (
-                  <p className="web-branch-help">
-                    <Sparkles size={12} /> Every branch stays. Return to any
-                    question and try another answer.
-                  </p>
-                )}
+                <p className="web-branch-help">
+                  <Sparkles size={12} />
+                  <span>
+                    There’s no wrong answer — pick the one closest to your
+                    instinct.{" "}
+                    <span className="kbd-hint">
+                      Press <kbd>A</kbd> <kbd>B</kbd> or <kbd>C</kbd> to
+                      answer.
+                    </span>
+                    {!state.edges.length &&
+                      " You can always come back and try the others."}
+                  </span>
+                </p>
                 <div className="branch-preview">
                   <span>
                     <ArrowUpRight size={12} />{" "}
-                    {hover === null
-                      ? "Follow this toward…"
-                      : `FOLLOW ANSWER ${String.fromCharCode(65 + hover)}`}
+                    {`Answer ${String.fromCharCode(65 + (hover ?? 0))} leads to`}
                   </span>
                   <p>
                     {questionById.get(current.answers[hover ?? 0].next)!.title}
@@ -560,11 +593,15 @@ export default function WebJourney({
             >
               <GitBranch size={17} />
               <span>
-                View web<small>{discovered.size} questions connected</small>
+                View web<small>{plural(discovered.size, "question")} connected</small>
               </span>
             </button>
             <button
               onClick={() => {
+                if (discovering) {
+                  continueToChoice();
+                  return;
+                }
                 panel.current?.scrollIntoView({
                   block: "start",
                   behavior: "instant",
@@ -574,7 +611,10 @@ export default function WebJourney({
             >
               <ArrowRight size={17} />
               <span>
-                Answer question<small>Follow your next thread</small>
+                Answer question
+                <small>
+                  {discovering ? "Skip to the next choice" : "Pick A, B or C"}
+                </small>
               </span>
             </button>
           </nav>

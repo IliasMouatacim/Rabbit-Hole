@@ -94,7 +94,7 @@
   font-weight: 500;
 }
 .discovery-eyebrow {
-  font: 9px monospace;
+  font: 11px monospace;
   letter-spacing: 1.6px;
   color: var(--discovery-accent, #9fdaeb);
 }
@@ -133,7 +133,7 @@
   color: var(--discovery-accent, #93d7e3);
 }
 .experiment-heading > span {
-  font: 8px monospace;
+  font: 11px monospace;
   letter-spacing: 1px;
 }
 .experiment-heading strong {
@@ -242,7 +242,7 @@
   border-radius: 0 9px 9px 0;
 }
 .connection-reward > span {
-  font: 9px monospace;
+  font: 11px monospace;
   letter-spacing: 1.5px;
   color: var(--discovery-accent);
 }
@@ -497,7 +497,7 @@
   }
   .discovery-steps {
     gap: 9px;
-    font-size: 8px;
+    font-size: 11px;
   }
   .experiment {
     padding: 12px;
@@ -517,7 +517,7 @@
   .cinematic .hero-eyebrow {
     top: 93px;
     left: 22px;
-    font-size: 6px;
+    font-size: 10px;
   }
   .cinematic .cinema-hero-copy {
     transform: none;
@@ -541,7 +541,7 @@
     font-size: 27px;
   }
   .hero-discovery .discovery-eyebrow {
-    font-size: 7px;
+    font-size: 10px;
   }
   .cinematic .hero-bottom {
     left: 22px;
