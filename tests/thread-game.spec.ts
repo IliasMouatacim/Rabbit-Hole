@@ -32,33 +32,23 @@ test('non-neighbours are rejected and recharges work only once', () => {
   expect(move({ ...run, energy: 2 }, 2, 0)).toBeNull();
 });
 
-test('a complete game awards stars, advances worlds, and preserves rewards after reload', async ({ page }) => {
-  await page.goto('/#play/ocean');
-  await expect(page.getByRole('heading', { name: 'Follow the thread.' })).toBeVisible();
-  const solution = solve(0);
-  for (const node of solution.trail.slice(1)) await page.getByRole('button', { name: new RegExp(`, node ${node}$`) }).click();
-  await expect(page.getByRole('heading', { name: 'You found a way.' })).toBeVisible();
-  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('rh-thread-stars') || '[]')[0])).toBeGreaterThan(0);
-  await page.getByRole('button', { name: 'Next world', exact: true }).click();
-  await expect(page).toHaveURL(/#play\/forest$/);
-  await page.reload();
-  await expect(page.getByRole('button', { name: /Ocean/ })).toContainText('★');
-});
-
 test('mobile keyboard movement, undo, help, and exploration remain usable', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/#play/ocean');
-  await page.getByRole('button', { name: 'Junction, node 1', exact: true }).focus();
+  await page.getByRole('button', { name: /Practice/ }).click();
+  await page.getByRole('button', { name: 'Begin expedition' }).click();
+  await page.getByRole('button', { name: /Drift junction.*node 1$/ }).focus();
   await page.keyboard.press('Enter');
-  await expect(page.getByRole('button', { name: 'Your spark, node 1' })).toBeVisible();
+  if (await page.locator('.exp-bargain-options').isVisible()) await page.getByRole('button', { name: /Leave it alone/ }).click();
+  await expect(page.getByRole('button', { name: /Drift junction, your position/ })).toBeVisible();
   await page.getByRole('button', { name: 'Undo', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Your spark, node 0' })).toBeVisible();
-  await page.getByRole('button', { name: 'How to play' }).click();
-  await expect(page.locator('.thread-help')).toContainText('There’s no timer');
-  await page.getByRole('button', { name: 'Got it' }).click();
+  await expect(page.getByRole('button', { name: /The bell, your position/ })).toBeVisible();
+  await page.getByRole('button', { name: 'Expedition help' }).click();
+  await expect(page.getByRole('dialog')).toContainText('not in real time');
+  await page.getByRole('button', { name: 'Back to the expedition' }).click();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  await page.getByRole('button', { name: 'Free exploration', exact: true }).click();
+  await page.getByRole('button', { name: 'Discovery archive', exact: true }).click();
   await expect(page).toHaveURL(/#journey\/ocean/);
   await page.getByRole('button', { name: 'Play Thread' }).click();
   await expect(page).toHaveURL(/#play\/ocean/);

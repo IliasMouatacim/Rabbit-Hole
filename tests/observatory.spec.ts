@@ -13,7 +13,7 @@ test('observatory previews each world and enters the selected football web', asy
   await expect(page.locator('.observatory-preview')).toContainText('Can empty space win a match?');
   await page.getByRole('button', { name: 'Play the connection game', exact: true }).click();
   await expect(page).toHaveURL(/#play\/football/);
-  await expect(page.locator('.thread-titlebar h1')).toBeVisible();
+  await expect(page.locator('.exp-heading h1')).toBeVisible();
   expect(errors).toEqual([]);
 });
 
