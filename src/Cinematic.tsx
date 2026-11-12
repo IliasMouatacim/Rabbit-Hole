@@ -42,8 +42,10 @@ function WorldArt({ kind }: { kind: number }) {
 
 export default function Cinematic({
   onEnter,
+  onPlay,
 }: {
   onEnter: (topic: string) => void;
+  onPlay: (topic: string) => void;
 }) {
   const root = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -418,7 +420,7 @@ export default function Cinematic({
         <span data-depth>000%</span>
       </div>
       <main>
-        <Observatory onEnter={enter} onDescend={() => navigate.current("first-question")} />
+        <Observatory onEnter={onPlay} onDescend={() => navigate.current("first-question")} />
         <section id="first-question" className="descent-hero" aria-labelledby="cinema-title">
           <div className="cinema-sticky hero-stage">
             <div className="hero-eyebrow">

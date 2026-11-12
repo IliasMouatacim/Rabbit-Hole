@@ -66,6 +66,7 @@ export default function WebJourney({
   onWorld,
   savedIds,
   onSave,
+  onPlay,
 }: {
   world: World;
   onHome: () => void;
@@ -73,6 +74,7 @@ export default function WebJourney({
   onWorld: (world: World) => void;
   savedIds: string[];
   onSave: (id: string) => void;
+  onPlay: () => void;
 }) {
   const [state, setState] = useState(() => {
     try {
@@ -293,6 +295,7 @@ export default function WebJourney({
             rabbit hole<span className="logo-period">®</span>
           </button>
           <div className="journey-nav-actions">
+            <button onClick={onPlay} style={{ background: '#c9f78b', color: '#142018', borderRadius: 6, padding: '12px 18px', border: 0, fontWeight: 600 }}>✳ Play Thread</button>
             <button className="web-share" onClick={share}>
               <Share2 size={14} /> Share web
             </button>

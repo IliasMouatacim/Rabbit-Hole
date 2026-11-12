@@ -39,6 +39,7 @@ import "@fontsource/manrope/latin-700.css";
 import "./styles.css";
 const Cinematic = lazy(() => import("./Cinematic"));
 const QuestionJourney = lazy(() => import("./WebJourney"));
+const ThreadGame = lazy(() => import("./ThreadGame"));
 const icons = {
   tree: TreePine,
   network: Network,
@@ -75,6 +76,7 @@ function RabbitMark({ small = false }: { small?: boolean }) {
   );
 }
 function App() {
+  const [play, setPlay] = useState<string | null>(() => window.location.hash.match(/^#play\/(ocean|forest|dreams|football|music)$/)?.[1] || null);
   const [journey, setJourney] = useState<World | null>(
     () =>
       (window.location.hash.match(
@@ -131,10 +133,10 @@ function App() {
     }
   }, [saved, visited]);
   useEffect(() => {
-    if (landing || journey) return;
+    if (landing || journey || play) return;
     setVisited((v) => (v.includes(selected.id) ? v : [...v, selected.id]));
     window.history.replaceState(null, "", `#${topic.id}/${selected.id}`);
-  }, [selected, topic, landing, journey]);
+  }, [selected, topic, landing, journey, play]);
   useEffect(() => {
     if (toast) {
       const id = setTimeout(() => setToast(""), 3500);
@@ -258,12 +260,19 @@ function App() {
     (n) => n.parent === selected.id || n.id === selected.parent,
   );
   const Icon = icons[selected.icon];
+  function startGame(id: string) {
+    setPlay(id);
+    window.history.replaceState(null, '', `#play/${id}`);
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+  if (play) return <Suspense fallback={<div className="cinema-loading">WAKING THE WEB</div>}><ThreadGame world={play} onHome={() => { setPlay(null); setLanding(true); window.history.replaceState(null, '', window.location.pathname); window.scrollTo({ top: 0, behavior: 'instant' }); }} onExplore={() => { const id = window.location.hash.split('/')[1]; setPlay(null); chooseTopic(topics.find(t => t.id === id) || topics[0]); }} /></Suspense>;
   if (landing)
     return (
       <Suspense
         fallback={<div className="cinema-loading">FOLLOW YOUR CURIOSITY</div>}
       >
         <Cinematic
+          onPlay={startGame}
           onEnter={(id) =>
             chooseTopic(topics.find((t) => t.id === id) || topics[0])
           }
@@ -276,6 +285,7 @@ function App() {
         fallback={<div className="cinema-loading">FOLLOW YOUR CURIOSITY</div>}
       >
         <QuestionJourney
+          onPlay={() => startGame(journey)}
           key={journey}
           world={journey}
           savedIds={saved.map((entry) => entry.id)}

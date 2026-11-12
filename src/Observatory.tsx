@@ -20,7 +20,7 @@ export default function Observatory({ onEnter, onDescend }: { onEnter: (id: stri
         <span className="observatory-kicker">GET A LITTLE LOST.</span>
         <h1>Nothing exists<br />in <em>isolation.</em><sup><ArrowUpRight size={32}/></sup></h1>
         <p>Pull on a question. Unravel a world.<br />See where your curiosity takes you.</p>
-        <button className="observatory-enter" onClick={() => onEnter(world.id)}>Enter the rabbit hole <ArrowUpRight size={20} /></button>
+        <button className="observatory-enter" onClick={() => onEnter(world.id)}>Play the connection game <ArrowUpRight size={20} /></button>
         <button className="observatory-random" onClick={() => setActive((active + 1 + Math.floor(Math.random() * 4)) % 5)}><Shuffle size={14} /> Surprise me with a world</button>
         <div className="observatory-footnote"><span>✳</span> No score. No right path.<br />Just a very good question.</div>
       </div>
