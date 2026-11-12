@@ -8,9 +8,10 @@ test("the playable hero leads into pinned storytelling and reel navigation", asy
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: /Curiosity has/ }),
+    page.getByRole("heading", { name: /Nothing exists/ }),
   ).toBeVisible();
   await expect(page.locator(".cinematic")).toHaveClass(/has-webgl/);
+  await page.getByRole("button", { name: "Or start with a question" }).click();
   await page.getByRole("button", { name: "Show me first" }).click();
   await expect(page.locator(".hero-reveal")).toContainText("chemical energy");
   await expect(page.getByLabel("Ocean depth")).toHaveValue("2800");
