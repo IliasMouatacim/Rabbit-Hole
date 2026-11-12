@@ -15,6 +15,7 @@ import {
 import { topics } from "./data";
 import { questions } from "./questions";
 import HeroDiscovery from "./HeroDiscovery";
+import Observatory from "./Observatory";
 import { createCuriosityScene } from "./curiosity-scene";
 import "./cinematic.css";
 
@@ -417,7 +418,8 @@ export default function Cinematic({
         <span data-depth>000%</span>
       </div>
       <main>
-        <section className="descent-hero" aria-labelledby="cinema-title">
+        <Observatory onEnter={enter} onDescend={() => navigate.current("first-question")} />
+        <section id="first-question" className="descent-hero" aria-labelledby="cinema-title">
           <div className="cinema-sticky hero-stage">
             <div className="hero-eyebrow">
               <span className="signal-light" /> AN EXPLORATION OF EVERYTHING{" "}
