@@ -74,9 +74,15 @@ The branching graph lives in `src/questions.ts`; `src/extra-subjects.ts` contain
 
 The test suite covers graph validation and migration, stable layouts, branch preservation, shared-web restoration, camera controls, touch pinching, keyboard exploration, and the cinematic and knowledge-map flows.
 
-### Thread: integrated expeditions
+### Rabbit Hole Quest: answer to advance
 
-The opening's primary action and the question journey's **Play Thread** button enter `#play/ocean` (or the selected world). Movement, playable encounters, sourced discoveries, upgrades, threat, and final escape now belong to one run. **Discovery archive** keeps the opinion-based questions and reading map available separately; subjective opinions are never scored as wrong.
+The default `#play/{world}` game is now a 3D question adventure. Five worlds each contain five levels of three factual questions (75 questions total). At least two correct answers clear a level and unlock the next. Each correct answer awards 100 points plus a streak bonus of 25 times the current streak; a perfect level earns 450. Answers shuffle between attempts, mistakes reveal explanations, and there is no timer. Best completed-level scores and unlocks persist in `rh-quiz-progress`; unavailable storage leaves progress usable for the visit. Completed worlds can be replayed.
+
+`QuizGame.tsx` owns rounds, hearts, feedback and progression; `quiz-data.ts` contains the question bank and validated local progress. `quiz-scene.ts` renders Pip, a floating crystal island, portal and particles with Three.js, one animation loop, capped resolution and pointer parallax. Reduced motion renders a static scene; WebGL failure uses an SVG illustration with the same playable quiz. Sound is optional and starts off. Keyboard keys 1–4 answer questions. The previous expedition remains available from the footer via `adventure=1`; plain play links, including older seed-only links, now open the quiz.
+
+### Alternative mode: integrated expeditions
+
+The quiz footer's **Expedition mode** action enters the earlier integrated adventure. Its links include `adventure=1`. Movement, playable encounters, sourced discoveries, upgrades, threat, and final escape belong to one run. **Discovery archive** keeps opinion-based questions and the reading map available separately; subjective opinions are never scored as wrong.
 
 Ocean is the reference expedition: stabilise an illustrative vent habitat, repeat an echo sequence, and route oxygen through two valves. Taking a fragment awards its source-backed discovery and 4 energy. The first fragment upgrades Scan with energy recovery and wakes a pursuing creature. The third opens a seven-move escape (five in Deep Dive), during which threads can collapse without disconnecting the exit. The game is turn-based: there is no real-time timer. An 8–12 minute target needs human playtesting; automated completion time does not establish play duration or enjoyment.
 
