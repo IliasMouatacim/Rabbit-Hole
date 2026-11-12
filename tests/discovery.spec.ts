@@ -23,6 +23,7 @@ test("homepage offers a playable question without WebGL and leads to the ocean",
     } as typeof getContext;
   });
   await page.goto("/");
+  await page.getByRole("button", { name: "Or start with a question" }).click();
   await expect(
     page.getByRole("heading", { name: "Could life thrive without sunlight?" }),
   ).toBeInViewport();
