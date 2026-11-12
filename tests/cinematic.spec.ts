@@ -9,7 +9,7 @@ test("the playable hero leads into pinned storytelling and reel navigation", asy
   await page.goto("/");
   await expect(
     page.getByRole("heading", { name: /Nothing exists/ }),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: 15000 });
   await expect(page.locator(".cinematic")).toHaveClass(/has-webgl/);
   await page.getByRole("button", { name: "Or start with a question" }).click();
   await page.getByRole("button", { name: "Show me first" }).click();

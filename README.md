@@ -73,3 +73,11 @@ The branching graph lives in `src/questions.ts`; `src/extra-subjects.ts` contain
 - `src/Cinematic.tsx` owns the introduction's scroll animation loop; `src/curiosity-scene.ts` renders its 3D artwork without scheduling its own loop.
 
 The test suite covers graph validation and migration, stable layouts, branch preservation, shared-web restoration, camera controls, touch pinching, keyboard exploration, and the cinematic and knowledge-map flows.
+
+### Thread: the connection game
+
+The opening's primary action now enters `#play/ocean` (or the selected world). The question journey also offers **Play Thread**, while **Free exploration** returns to the existing questions and evidence.
+
+Move the spark to an adjacent node, collect three diamond signals, and reach node 12, the exit. A move costs 1 energy; entering a red hazard costs 3. Recharge nodes return 3 energy only on their first visit. Five sectors vary their routes, energy budgets, hazards, and pickups. Undo restores the entire previous state; restart resets the current puzzle. There is no timer. Finish in at most 9 moves for three stars, at most 13 for two, or any other winning route for one. Best stars per world persist in `rh-thread-stars`; unfinished runs restart on reload. Sound starts off and requires a user action. Reduced motion disables travel and ambient animations.
+
+`src/thread-engine.ts` contains pure move rules. `src/ThreadGame.tsx` and `src/thread-game.css` provide the game interface. Tests search for an affordable winning route in every sector and play through rewards, progression, keyboard movement, undo, mobile layout, and the return to exploration. The game is an abstract route puzzle; world names provide its atmosphere rather than scientific simulation rules.
