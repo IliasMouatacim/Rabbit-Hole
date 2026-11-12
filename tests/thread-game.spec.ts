@@ -35,7 +35,7 @@ test('non-neighbours are rejected and recharges work only once', () => {
 test('mobile keyboard movement, undo, help, and exploration remain usable', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/#play/ocean');
+  await page.goto('/#play/ocean?adventure=1');
   await page.getByRole('button', { name: /Practice/ }).click();
   await page.getByRole('button', { name: 'Begin expedition' }).click();
   await page.getByRole('button', { name: /Drift junction.*node 1$/ }).focus();

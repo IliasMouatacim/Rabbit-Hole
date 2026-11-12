@@ -27,7 +27,7 @@ export default function Expedition({ world: initialWorld, onHome, onExplore }: {
   const finished = !!run&&run.status!=='playing', overlay = !!run&&(run.encounter!==null||run.event!==null||finished)||help;
   const guardianUnlocked = archive.some(r=>r.won&&r.mode==='challenge');
   const best = archive.filter(r=>r.seed===seed&&r.world===world&&r.mode===mode&&r.loadout===loadout&&r.hard===hard).reduce((v,r)=>Math.max(v,r.score),0);
-  useEffect(()=>{ window.history.replaceState(null,'',`${challengeURL(world,seed,hard)}&kit=${loadout}&mode=${mode}`); },[world,seed,hard,loadout,mode]);
+  useEffect(()=>{ window.history.replaceState(null,'',`${challengeURL(world,seed,hard)}&kit=${loadout}&mode=${mode}&adventure=1`); },[world,seed,hard,loadout,mode]);
   useEffect(()=>()=>{void audio.current?.close();},[]);
   useEffect(()=>{
     if(overlay) modalHeading.current?.focus();

@@ -57,7 +57,7 @@ async function solveEncounter(page:Page,stage:number,seed:string){
 
 test('a full Ocean expedition connects challenges, discoveries, abilities, finale and a saved record',async({page})=>{
   const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
-  const seed='ABYSS-001',plan=winningTrail(seed);await page.goto(`/#play/ocean?seed=${seed}`);await page.getByRole('button',{name:'Begin expedition'}).click();
+  const seed='ABYSS-001',plan=winningTrail(seed);await page.goto(`/#play/ocean?adventure=1&seed=${seed}`);await page.getByRole('button',{name:'Begin expedition'}).click();
   let collected=0;
   for(const step of plan.steps){
     if(step.reroute)await page.getByRole('button',{name:/Reroute ability/}).click();
@@ -74,7 +74,7 @@ test('a full Ocean expedition connects challenges, discoveries, abilities, final
 });
 
 test('practice undo restores energy, challenge sharing keeps rules, mobile panels fit',async({page})=>{
-  await page.setViewportSize({width:390,height:844});await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/#play/ocean?seed=MOBILE-42&mode=practice&hard=1&kit=guardian');
+  await page.setViewportSize({width:390,height:844});await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/#play/ocean?adventure=1&seed=MOBILE-42&mode=practice&hard=1&kit=guardian');
   await expect(page.getByLabel('Challenge code')).toHaveValue('MOBILE-42');await expect(page.getByLabel('Starting kit')).toHaveValue('guardian');await page.getByRole('button',{name:'Begin expedition'}).click();
   await page.getByRole('button',{name:/Drift junction.*node 1$/}).click();if(await page.locator('.exp-bargain-options').isVisible())await page.getByRole('button',{name:/Leave it alone/}).click();await page.getByRole('button',{name:'Undo',exact:true}).click();
   await expect(page.getByRole('button',{name:/The bell, your position/})).toBeVisible();
@@ -85,7 +85,7 @@ test('practice undo restores energy, challenge sharing keeps rules, mobile panel
 
 test('world encounters have distinct playable objectives',async({page})=>{
   for(const world of ['forest','dreams','football','music']){
-    const chart=makeChart('WORLD-42');await page.goto(`/#play/${world}?seed=WORLD-42`);await page.getByRole('button',{name:'Begin expedition'}).click();
+    const chart=makeChart('WORLD-42');await page.goto(`/#play/${world}?adventure=1&seed=WORLD-42`);await page.getByRole('button',{name:'Begin expedition'}).click();
     const path=route(chart,newExpedition('challenge','scout'),chart.fragments[0]);for(const node of path){await page.getByRole('button',{name:new RegExp(`, node ${node}$`)}).click();if(await page.locator('.exp-bargain-options').isVisible())await page.getByRole('button',{name:/Leave it alone/}).click();}
     if(world==='forest'){for(const i of [1,2,3])await page.getByRole('button',{name:`Toggle link ${i}`}).click();await page.getByRole('button',{name:'Test the network'}).click();}
     if(world==='football'){for(const i of [1,2,3])await page.getByLabel(`Receiver ${i} position`).fill('25');await page.getByRole('button',{name:'Play the pass'}).click();}
@@ -97,7 +97,7 @@ test('world encounters have distinct playable objectives',async({page})=>{
 
 test('failure explains the fatal move; challenge retries and practice can undo it',async({page})=>{
   for(const mode of ['challenge','practice']){
-    await page.goto('about:blank');await page.goto(`/#play/ocean?seed=FAILURE-42&mode=${mode}`);await page.getByRole('button',{name:'Begin expedition'}).click();
+    await page.goto('about:blank');await page.goto(`/#play/ocean?adventure=1&seed=FAILURE-42&mode=${mode}`);await page.getByRole('button',{name:'Begin expedition'}).click();
     for(let i=0;i<16;i++){
       if(await page.getByRole('heading',{name:'The deep keeps its secrets.'}).isVisible())break;
       const node=i%2===0?3:0;await page.getByRole('button',{name:new RegExp(`, node ${node}$`)}).click();
