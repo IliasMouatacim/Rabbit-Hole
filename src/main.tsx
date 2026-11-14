@@ -1,1036 +1,848 @@
-import React, { lazy, Suspense, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
-  ArrowDown,
-  ArrowRight,
-  ArrowUpRight,
-  Bookmark,
-  BookOpen,
-  Check,
-  ChevronRight,
-  Compass,
-  Download,
-  Expand,
-  FlaskConical,
-  GitBranch,
-  Globe2,
-  Leaf,
-  Menu,
-  Minus,
-  Moon,
-  Network,
-  Plus,
-  Search,
-  Share2,
-  Sparkles,
-  TreePine,
-  Waves,
+  Radio,
+  Activity,
+  Volume2,
+  VolumeX,
+  Settings,
+  FolderOpen,
   X,
-  Eye,
+  Zap,
+  Clock,
+  Users,
+  ArrowUpRight,
+  ArrowRight,
+  MapPin,
+  ChevronRight,
+  RotateCcw,
+  Check,
+  Headphones,
+  Share2,
 } from "lucide-react";
-import { allIdeas, topics, type Idea, type Topic } from "./data";
-import type { World } from "./questions";
 import "@fontsource/dm-sans/latin-400.css";
 import "@fontsource/dm-sans/latin-500.css";
-import "@fontsource/dm-sans/latin-600.css";
-import "@fontsource/manrope/latin-400.css";
 import "@fontsource/manrope/latin-600.css";
-import "@fontsource/manrope/latin-700.css";
-import "./styles.css";
-const Cinematic = lazy(() => import("./Cinematic"));
-const QuestionJourney = lazy(() => import("./WebJourney"));
-const icons = {
-  tree: TreePine,
-  network: Network,
-  flask: FlaskConical,
-  moon: Moon,
-  spark: Sparkles,
-  waves: Waves,
-  eye: Eye,
+import City from "./City";
+import { getCall, type Choice } from "./game";
+import "./signal.css";
+type Entry = {
+  turn: number;
+  title: string;
+  choice: string;
+  result: string;
+  saved: number;
+  flag: string;
 };
-type Saved = { id: string; note: string };
-function readStored<T>(key: string, fallback: T): T {
+type State = {
+  turn: number;
+  power: number;
+  trust: number;
+  time: number;
+  saved: number;
+  flags: string[];
+  log: Entry[];
+  code: string;
+  hard: boolean;
+};
+const store = <T,>(key: string, fallback: T): T => {
   try {
-    const value = JSON.parse(localStorage.getItem(key) || "null");
-    return Array.isArray(value) ? (value as T) : fallback;
+    return JSON.parse(localStorage.getItem(key) || "null") ?? fallback;
   } catch {
     return fallback;
   }
-}
-function RabbitMark({ small = false }: { small?: boolean }) {
-  return (
-    <svg
-      width={small ? 24 : 32}
-      height={small ? 28 : 38}
-      viewBox="0 0 32 38"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path
-        d="M12 19C6 10 5 1 9 2c4 1 6 11 7 16C17 9 20 0 23 2c4 3-1 13-3 18 6 4 7 11 2 14-5 4-14 2-16-3-2-5 1-9 6-12Z"
-        fill="currentColor"
-      />
-      <circle cx="21" cy="26" r="1.5" fill="var(--sidebar)" />
-    </svg>
-  );
-}
+};
+const fresh = (code = "NIGHT-01", hard = false): State => ({
+  turn: 0,
+  power: 100,
+  trust: 64,
+  time: 360,
+  saved: 0,
+  flags: [],
+  log: [],
+  code,
+  hard,
+});
 function App() {
-  const [journey, setJourney] = useState<World | null>(
-    () =>
-      (window.location.hash.match(
-        /^#journey\/(forest|dreams|ocean|football|music)(?:\?|$)/,
-      )?.[1] as World) || null,
+  const [state, setState] = useState<State>(() =>
+    store("last-signal-run", fresh()),
   );
-  const [landing, setLanding] = useState(
-    () =>
-      !journey &&
-      !topics.some((t) => window.location.hash.startsWith(`#${t.id}/`)),
-  );
-  const initial = () => {
-    const [t, n] = window.location.hash.slice(1).split("/");
-    const topic = topics.find((v) => v.id === t) || topics[0];
-    return {
-      topic,
-      node: topic.nodes.find((v) => v.id === n) || topic.nodes[0],
-    };
-  };
-  const [topic, setTopic] = useState<Topic>(initial().topic);
-  const [selected, setSelected] = useState<Idea>(initial().node);
-  const [view, setView] = useState<"explore" | "saved">("explore");
-  const [saved, setSaved] = useState<Saved[]>(() =>
-    readStored("rh-saved", []).filter(
-      (x: Saved) => x && typeof x.id === "string" && typeof x.note === "string",
+  const [panel, setPanel] = useState("");
+  const [notice, setNotice] = useState("");
+  const [result, setResult] = useState<Entry | null>(null);
+  const [tune, setTune] = useState(98.6);
+  const [muted, setMuted] = useState(true);
+  const [reduced, setReduced] = useState(() =>
+    store(
+      "last-signal-motion",
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
     ),
   );
-  const [visited, setVisited] = useState<string[]>(() =>
-    readStored("rh-visited", []),
+  const [captions, setCaptions] = useState(() =>
+    store("last-signal-captions", true),
   );
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  const [returnWeb, setReturnWeb] = useState<{
-    world: World;
-    hash: string;
-  } | null>(null);
-  const [zoom, setZoom] = useState(1);
-  const [toast, setToast] = useState("");
-  const [mobileNav, setMobileNav] = useState(false);
-  const [detailOpen, setDetailOpen] = useState(() =>
-    Boolean(window.location.hash.split("/")[1]),
+  const [unlocked, setUnlocked] = useState(() =>
+    store("last-signal-unlocked", false),
   );
-  const [detailTab, setDetailTab] = useState<"story" | "evidence">("story");
-  const searchRef = useRef<HTMLInputElement>(null);
-  const mapRef = useRef<HTMLDivElement>(null);
+  const audio = useRef<AudioContext | null>(null);
+  const gain = useRef<GainNode | null>(null);
+  const dialog = useRef<HTMLDialogElement>(null);
+  const [scenarioCode, setScenarioCode] = useState("");
+  const finished = state.turn >= 8;
+  const call = getCall(
+    Math.min(state.turn, 7),
+    state.flags,
+    state.hard,
+    state.trust,
+  );
+  const tuned = Math.abs(tune - 104.2) < 0.15;
   useEffect(() => {
-    try {
-      localStorage.setItem("rh-saved", JSON.stringify(saved));
-      localStorage.setItem("rh-visited", JSON.stringify(visited));
-    } catch {
-      setToast(
-        "Storage is unavailable. Your changes will last for this visit.",
-      );
+    localStorage.setItem("last-signal-run", JSON.stringify(state));
+    if (state.turn === 8) {
+      setUnlocked(true);
+      localStorage.setItem("last-signal-unlocked", "true");
     }
-  }, [saved, visited]);
+  }, [state]);
   useEffect(() => {
-    if (landing || journey) return;
-    setVisited((v) => (v.includes(selected.id) ? v : [...v, selected.id]));
-    window.history.replaceState(null, "", `#${topic.id}/${selected.id}`);
-  }, [selected, topic, landing, journey]);
+    localStorage.setItem("last-signal-motion", JSON.stringify(reduced));
+  }, [reduced]);
   useEffect(() => {
-    if (toast) {
-      const id = setTimeout(() => setToast(""), 3500);
-      return () => clearTimeout(id);
+    localStorage.setItem("last-signal-captions", JSON.stringify(captions));
+  }, [captions]);
+  useEffect(() => {
+    if (panel) dialog.current?.showModal();
+    else dialog.current?.close();
+  }, [panel]);
+  useEffect(
+    () => () => {
+      audio.current?.close();
+    },
+    [],
+  );
+  function toggleAudio() {
+    if (!audio.current) {
+      const a = new AudioContext();
+      audio.current = a;
+      const buffer = a.createBuffer(1, a.sampleRate * 3, a.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < data.length; i++)
+        data[i] = (Math.random() * 2 - 1) * 0.15;
+      const noise = a.createBufferSource();
+      noise.buffer = buffer;
+      noise.loop = true;
+      const filter = a.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.value = 430;
+      const g = a.createGain();
+      g.gain.value = 0.24;
+      noise.connect(filter);
+      filter.connect(g);
+      g.connect(a.destination);
+      noise.start();
+      gain.current = g;
     }
-  }, [toast]);
-  useEffect(() => {
-    const handler = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key === "k") {
-        event.preventDefault();
-        setSearchOpen((v) => !v);
-      }
-      if (event.key === "Escape") {
-        setSearchOpen(false);
-        setDetailOpen(false);
-        setMobileNav(false);
-      }
+    audio.current.resume();
+    gain.current!.gain.value = muted ? 0.24 : 0;
+    setMuted(!muted);
+  }
+  function choose(choice: Choice) {
+    if (
+      result ||
+      finished ||
+      state.power + choice.power < 0 ||
+      state.time < choice.time
+    )
+      return;
+    const entry = {
+      turn: state.turn + 1,
+      title: call.title,
+      choice: choice.label,
+      result: choice.result,
+      saved: choice.saved,
+      flag: choice.flag,
     };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, []);
-  useEffect(() => {
-    if (searchOpen) searchRef.current?.focus();
-  }, [searchOpen]);
-  function chooseTopic(t: Topic, n?: Idea) {
-    if (landing || journey) window.scrollTo({ top: 0, behavior: "instant" });
-    setLanding(false);
-    setJourney(n ? null : (t.id as World));
-    setTopic(t);
-    setSelected(n || t.nodes[0]);
-    setView("explore");
-    setZoom(1);
-    setSearchOpen(false);
-    setQuery("");
-    setMobileNav(false);
-    setDetailTab("story");
-    setDetailOpen(Boolean(n));
+    setResult(entry);
+    setState((s) => ({
+      ...s,
+      turn: s.turn + 1,
+      power: Math.max(0, s.power + choice.power),
+      trust: Math.max(0, Math.min(100, s.trust + choice.trust)),
+      time: s.time - choice.time,
+      saved: s.saved + choice.saved,
+      flags: [...s.flags, choice.flag],
+      log: [...s.log, entry],
+    }));
   }
-  function selectNode(n: Idea) {
-    setSelected(n);
-    setDetailOpen(true);
-    setDetailTab("story");
+  function restart(code = "NIGHT-01", hard = false) {
+    setState(fresh(code, hard));
+    setResult(null);
+    setTune(98.6);
+    setPanel("");
   }
-  function resumeWeb() {
-    if (!returnWeb) return;
-    window.history.replaceState(null, "", returnWeb.hash);
-    chooseTopic(topics.find((t) => t.id === returnWeb.world)!);
-  }
-  function toggleSave(id: string) {
-    setSaved((v) =>
-      v.some((s) => s.id === id)
-        ? v.filter((s) => s.id !== id)
-        : [...v, { id, note: "" }],
-    );
-  }
-  async function share() {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      setToast("Link copied. Take someone down this rabbit hole.");
-    } catch {
-      setToast("Copy the URL in your address bar to share this idea.");
-    }
-  }
-  function exportNotes() {
-    const text = [
-      "# My Rabbit Hole field notes",
-      "",
-      ...saved.flatMap((s) => {
-        const entry = allIdeas.find((e) => e.idea.id === s.id);
-        return entry
-          ? [
-              `## ${entry.idea.title}`,
-              entry.idea.summary,
-              `Source: ${entry.idea.source.url}`,
-              s.note ? `My note: ${s.note}` : "",
-              "",
-            ]
-          : [];
-      }),
-    ].join("\n");
-    const url = URL.createObjectURL(
-      new Blob([text], { type: "text/markdown" }),
-    );
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "rabbit-hole-field-notes.md";
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-  const isSaved = saved.some((s) => s.id === selected.id);
-  const progress = topic.nodes.filter((n) => visited.includes(n.id)).length;
-  const results = query.trim()
-    ? allIdeas.filter(({ idea, topic: t }) =>
-        `${idea.title} ${idea.summary} ${idea.category} ${t.tags.join(" ")}`
-          .toLowerCase()
-          .includes(query.toLowerCase().trim()),
-      )
-    : [];
-  const related = topic.nodes.filter(
-    (n) => n.parent === selected.id || n.id === selected.parent,
+  const powered = state.flags.includes("hospital")
+    ? ["hospital", "oldtown"]
+    : state.flags.includes("station")
+      ? ["station", "oldtown"]
+      : ["hospital", "station", "oldtown"];
+  const remaining = call.choices.some(
+    (c) => state.power + c.power >= 0 && state.time >= c.time,
   );
-  const Icon = icons[selected.icon];
-  if (landing)
-    return (
-      <Suspense
-        fallback={<div className="cinema-loading">FOLLOW YOUR CURIOSITY</div>}
-      >
-        <Cinematic
-          onEnter={(id) =>
-            chooseTopic(topics.find((t) => t.id === id) || topics[0])
-          }
-        />
-      </Suspense>
-    );
-  if (journey)
-    return (
-      <Suspense
-        fallback={<div className="cinema-loading">FOLLOW YOUR CURIOSITY</div>}
-      >
-        <QuestionJourney
-          key={journey}
-          world={journey}
-          savedIds={saved.map((entry) => entry.id)}
-          onSave={toggleSave}
-          onWorld={(id) => chooseTopic(topics.find((t) => t.id === id)!)}
-          onHome={() => {
-            setJourney(null);
-            setLanding(true);
-            window.history.replaceState(null, "", window.location.pathname);
-            window.scrollTo({ top: 0, behavior: "instant" });
-          }}
-          onMap={(id, ideaId) => {
-            setReturnWeb({ world: journey, hash: window.location.hash });
-            const t = topics.find((t) => t.id === id)!;
-            chooseTopic(t, t.nodes.find((n) => n.id === ideaId) || t.nodes[0]);
-          }}
-        />
-      </Suspense>
-    );
+  function conserve() {
+    const entry = {
+      turn: state.turn + 1,
+      title: call.title,
+      choice: "Keep listening",
+      result:
+        "Without enough power or time, the station can only listen. This rescue passes beyond your reach.",
+      saved: 0,
+      flag: "lost",
+    };
+    setResult(entry);
+    setState((s) => ({
+      ...s,
+      turn: s.turn + 1,
+      log: [...s.log, entry],
+      trust: Math.max(0, s.trust - 8),
+    }));
+  }
   return (
-    <div className="app-shell">
-      {mobileNav && (
-        <button
-          className="nav-scrim"
-          aria-label="Close navigation"
-          onClick={() => setMobileNav(false)}
-        />
-      )}
-      <aside className={`sidebar ${mobileNav ? "is-open" : ""}`}>
-        <a
-          className="brand"
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            chooseTopic(topics[0]);
-          }}
-        >
-          <RabbitMark />
+    <div className={"app " + (reduced ? "reduced" : "")}>
+      <header>
+        <a className="brand" href="#" onClick={(e) => e.preventDefault()}>
+          <Radio size={25} />
           <span>
-            rabbit hole<span className="brand-dot">.</span>
+            LAST SIGNAL<span className="brand-dot">.</span>
           </span>
         </a>
-        <div className="sidebar-caption">
-          A LITTLE CURIOSITY GOES A LONG WAY
-        </div>
-        <button className="search-trigger" onClick={() => setSearchOpen(true)}>
-          <Search size={17} />
-          <span>Find your next question</span>
-          <kbd>⌘ K</kbd>
-        </button>
-        <nav aria-label="Main navigation">
+        <nav>
           <button
-            className="nav-item"
-            onClick={() => (returnWeb ? resumeWeb() : chooseTopic(topic))}
+            className={!panel ? "active" : ""}
+            onClick={() => setPanel("")}
           >
-            <GitBranch size={18} />{" "}
-            {returnWeb ? "Back to your web" : "Answer a question"}{" "}
-            <ArrowUpRight size={13} />
+            The station
           </button>
-          <button
-            className={view === "explore" ? "nav-item active" : "nav-item"}
-            onClick={() => {
-              setView("explore");
-              setMobileNav(false);
-            }}
-          >
-            <Compass size={19} /> Explore <span className="nav-dot" />
+          <button onClick={() => setPanel("files")}>
+            Case files{" "}
+            <span className="nav-count">
+              {state.log.length.toString().padStart(2, "0")}
+            </span>
           </button>
-          <button
-            className={view === "saved" ? "nav-item active" : "nav-item"}
-            onClick={() => {
-              setView("saved");
-              setMobileNav(false);
-            }}
-          >
-            <Bookmark size={18} /> My collection{" "}
-            <span className="count">{saved.length}</span>
+          <button onClick={() => setPanel("nights")}>
+            Other nights <ArrowUpRight size={12} />
           </button>
         </nav>
-        <div className="nav-section-title">
-          YOUR TRAILS <span>{String(topics.length).padStart(2, "0")}</span>
+        <div className="header-tools">
+          <span className="live-dot" /> <span className="on-air">ON AIR</span>
+          <i />
+          <button
+            className="icon-btn"
+            aria-label={muted ? "Enable ambient sound" : "Mute sound"}
+            onClick={toggleAudio}
+          >
+            {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+          </button>
+          <button
+            className="icon-btn"
+            aria-label="Settings"
+            onClick={() => setPanel("settings")}
+          >
+            <Settings size={18} />
+          </button>
         </div>
-        <div className="trails">
-          {topics.map((t, i) => (
-            <button
-              key={t.id}
-              className={`trail ${topic.id === t.id && view === "explore" ? "current" : ""}`}
-              onClick={() => chooseTopic(t)}
-            >
-              <span className={`trail-line trail-${i}`} />
-              <span>{t.short}</span>
-              <ChevronRight size={14} />
-            </button>
-          ))}
-        </div>
-        <button
-          className="back-to-descent"
-          onClick={() => {
-            window.history.replaceState(null, "", window.location.pathname);
-            setLanding(true);
-            window.scrollTo({ top: 0, behavior: "instant" });
-          }}
-        >
-          <ArrowUpRight size={16} /> Return to the descent
-        </button>
-        <div className="sidebar-bottom">
-          <div className="curiosity-card">
-            <span className="mini-stars">✧</span>
-            <p>
-              The best discoveries
-              <br />
-              start with <em>“what if?”</em>
-            </p>
-            <button
-              onClick={() => {
-                const next =
-                  topics[
-                    (topics.findIndex((t) => t.id === topic.id) + 1) %
-                      topics.length
-                  ];
-                chooseTopic(next);
-              }}
-            >
-              Surprise me <ArrowUpRight size={15} />
-            </button>
-          </div>
-          <div className="local-profile">
-            <div className="avatar">Y</div>
-            <div>
-              <strong>Your curious corner</strong>
-              <span>Saved on this device</span>
-            </div>
-            <span className="online-dot" />
-          </div>
-        </div>
-      </aside>
-      <main className="main">
-        <header className="topbar">
-          <div className="breadcrumbs">
-            <button
-              className="mobile-menu icon-button"
-              aria-label="Open navigation"
-              onClick={() => setMobileNav(true)}
-            >
-              <Menu size={21} />
-            </button>
-            <Globe2 size={16} />
-            <span>Your curiosity, connected</span>
-          </div>
-          <div className="topbar-right">
-            <span className="edition">AN INTERNET WORTH EXPLORING</span>
-            <span className="beta">BETA 01</span>
-          </div>
-        </header>
-        {view === "explore" ? (
-          <>
-            <section className="intro">
-              <div>
-                <div className="eyebrow">
-                  <span />
-                  FOLLOW A QUESTION. FIND A WORLD.
-                </div>
-                <h1>
-                  A little wonder.
-                  <br className="mobile-break" />{" "}
-                  <span>Endless possibilities.</span>
-                </h1>
-                <p>
-                  Pick a thread. Follow the connections. See where your
-                  curiosity takes you.
-                </p>
-              </div>
-              <button
-                className="new-question"
-                onClick={() => setSearchOpen(true)}
-              >
-                <Plus size={17} /> Find a rabbit hole
-              </button>
-            </section>
-            <div className="exploration-heading">
-              <div className="exploration-label">
-                <span className={`topic-symbol ${topic.accent}`}>
-                  <Leaf size={17} />
-                </span>
-                <div>
-                  <span className="overline">YOU’RE EXPLORING</span>
-                  <h2>{topic.short}</h2>
-                </div>
-              </div>
-              <div className="exploration-actions">
-                <span className="live-label">
-                  <span /> {progress} of {topic.nodes.length} ideas explored
-                </span>
-                <button className="text-button" onClick={share}>
-                  <Share2 size={15} />
-                  <span>Share trail</span>
-                </button>
-              </div>
-            </div>
-            <section
-              className={`exploration-workspace ${topic.accent}`}
-              aria-label="Interactive exploration"
-            >
-              <div className="map-section">
-                <div className="map-top">
-                  <span>
-                    <GitBranch size={14} /> THE CURIOSITY MAP
-                  </span>
-                  <span className="map-hint">
-                    Every connection is a new beginning
-                  </span>
-                </div>
-                <div className="map-scroll" ref={mapRef}>
-                  <div
-                    className="map-canvas"
-                    style={{
-                      width: `${100 * zoom}%`,
-                      minWidth: 560 * zoom,
-                      height: 660 * zoom,
-                    }}
-                  >
-                    <svg
-                      className="connections"
-                      viewBox="0 0 1100 800"
-                      preserveAspectRatio="none"
-                      aria-hidden="true"
-                    >
-                      <defs>
-                        <pattern
-                          id="dots"
-                          x="0"
-                          y="0"
-                          width="28"
-                          height="28"
-                          patternUnits="userSpaceOnUse"
-                        >
-                          <circle
-                            cx="1"
-                            cy="1"
-                            r="1"
-                            fill="#a0aa92"
-                            opacity=".32"
-                          />
-                        </pattern>
-                      </defs>
-                      <rect width="1100" height="800" fill="url(#dots)" />
-                      {topic.nodes
-                        .filter((n) => n.parent)
-                        .map((n) => {
-                          const p = topic.nodes.find((v) => v.id === n.parent)!;
-                          const x1 = p.x + 90,
-                            y1 = p.y + 40,
-                            x2 = n.x + 90,
-                            y2 = n.y + 40;
-                          return (
-                            <g key={n.id}>
-                              <path
-                                d={`M${x1},${y1} C${x1},${(y1 + y2) / 2} ${x2},${(y1 + y2) / 2} ${x2},${y2}`}
-                                fill="none"
-                                stroke={
-                                  n.id === selected.id || p.id === selected.id
-                                    ? "#879669"
-                                    : "#c9cfbf"
-                                }
-                                strokeWidth="1.6"
-                                strokeDasharray={
-                                  n.id === "intelligence" ||
-                                  n.id === "alien" ||
-                                  n.id === "dream-self"
-                                    ? "5 5"
-                                    : undefined
-                                }
-                              />
-                              <circle
-                                cx={(x1 + x2) / 2}
-                                cy={(y1 + y2) / 2}
-                                r="3"
-                                fill="#a3ae90"
-                              />
-                            </g>
-                          );
-                        })}
-                    </svg>
-                    <span className="map-caption caption-left">
-                      there’s more beneath
-                      <br />
-                      the surface… <ArrowDown size={22} />
-                    </span>
-                    <span className="map-caption caption-right">
-                      what if we look
-                      <br />a little closer?
-                    </span>
-                    {topic.nodes.map((n, i) => {
-                      const NodeIcon = icons[n.icon];
-                      const active = n.id === selected.id;
-                      return (
-                        <button
-                          key={n.id}
-                          aria-pressed={active}
-                          className={`idea-node ${i === 0 ? "root-node" : ""} ${active ? "selected" : ""} ${visited.includes(n.id) ? "visited" : ""}`}
-                          style={{ left: `${n.x / 11}%`, top: `${n.y / 8}%` }}
-                          onClick={() => selectNode(n)}
-                        >
-                          <span className="node-icon">
-                            <NodeIcon size={i === 0 ? 26 : 20} />
-                          </span>
-                          <span className="node-label">{n.label}</span>
-                          <strong>{n.title}</strong>
-                          <span className="node-footer">
-                            {i === 0 ? "START HERE" : n.category}
-                            <span>
-                              {visited.includes(n.id) ? (
-                                <Check size={12} />
-                              ) : (
-                                <ArrowUpRight size={12} />
-                              )}
-                            </span>
-                          </span>
-                          {active && <span className="selected-indicator" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-                <div className="map-bottom">
-                  <span className="map-legend">
-                    <span /> A question worth following
-                  </span>
-                  <div className="map-controls">
-                    <button
-                      aria-label="Zoom out"
-                      disabled={zoom <= 0.8}
-                      onClick={() =>
-                        setZoom((z) => Math.max(0.8, +(z - 0.2).toFixed(1)))
-                      }
-                    >
-                      <Minus size={16} />
-                    </button>
-                    <span>{Math.round(zoom * 100)}%</span>
-                    <button
-                      aria-label="Zoom in"
-                      disabled={zoom >= 1.8}
-                      onClick={() =>
-                        setZoom((z) => Math.min(1.8, +(z + 0.2).toFixed(1)))
-                      }
-                    >
-                      <Plus size={16} />
-                    </button>
-                    <span className="control-divider" />
-                    <button
-                      aria-label="Reset map view"
-                      onClick={() => {
-                        setZoom(1);
-                        mapRef.current?.scrollTo({
-                          left: 0,
-                          top: 0,
-                          behavior: "smooth",
-                        });
-                      }}
-                    >
-                      <Expand size={16} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <aside
-                className={`detail-panel ${detailOpen ? "detail-open" : ""}`}
-                aria-label="Selected idea"
-              >
-                <button
-                  className="close-detail icon-button"
-                  aria-label="Close idea"
-                  onClick={() => setDetailOpen(false)}
-                >
-                  <X size={20} />
-                </button>
-                <div className={`detail-art ${topic.accent}`}>
-                  <div className="art-orbit orbit-one" />
-                  <div className="art-orbit orbit-two" />
-                  <div className="art-orbit orbit-three" />
-                  <div className="art-grain" />
-                  {topic.id === "forest" ? (
-                    <ForestArt />
-                  ) : topic.id === "dreams" ? (
-                    <Moon size={100} strokeWidth={0.7} />
-                  ) : topic.id === "ocean" ? (
-                    <Waves size={130} strokeWidth={0.65} />
-                  ) : (
-                    <Icon size={110} strokeWidth={0.7} />
-                  )}
-                  <span className="art-tag">
-                    <Icon size={12} />
-                    {selected.category.toUpperCase()}
-                  </span>
-                  <span className="art-coordinate">
-                    {String(topic.nodes.indexOf(selected) + 1).padStart(2, "0")}{" "}
-                    / {String(topic.nodes.length).padStart(2, "0")}
-                  </span>
-                </div>
-                <div className="detail-content">
-                  {returnWeb && (
-                    <button className="evidence-return" onClick={resumeWeb}>
-                      <GitBranch size={15} /> Back to your web{" "}
-                      <ArrowUpRight size={14} />
-                    </button>
-                  )}
-                  <div className="detail-eyebrow">
-                    <span className="green-dot" /> A THREAD TO FOLLOW{" "}
-                    <span>3 MIN READ</span>
-                  </div>
-                  <h2>{selected.title}</h2>
-                  <p className="detail-summary">{selected.summary}</p>
-                  <div
-                    className="detail-tabs"
-                    role="tablist"
-                    aria-label="Idea details"
-                  >
-                    <button
-                      role="tab"
-                      aria-selected={detailTab === "story"}
-                      onClick={() => setDetailTab("story")}
-                    >
-                      The story
-                    </button>
-                    <button
-                      role="tab"
-                      aria-selected={detailTab === "evidence"}
-                      onClick={() => setDetailTab("evidence")}
-                    >
-                      Evidence & questions <span>1</span>
-                    </button>
-                  </div>
-                  {detailTab === "story" ? (
-                    <div className="story-body">
-                      <p>{selected.body}</p>
-                      <div className="wonder-box">
-                        <Sparkles size={17} />
-                        <div>
-                          <strong>Stay curious. Stay critical.</strong>
-                          <p>{selected.uncertainty}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="evidence-body">
-                      <div className="source-card">
-                        <span>READ THE SOURCE</span>
-                        <a
-                          href={selected.source.url}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          {selected.source.title}
-                          <ArrowUpRight size={17} />
-                        </a>
-                        <p>{selected.source.publisher}</p>
-                      </div>
-                      <h3>What could change the answer?</h3>
-                      <p>{selected.uncertainty}</p>
-                      <small>
-                        These are curated summaries. Follow the source to
-                        inspect the original evidence and its limits.
-                      </small>
-                    </div>
-                  )}
-                  <div className="detail-buttons">
-                    <button
-                      className={`save-button ${isSaved ? "is-saved" : ""}`}
-                      onClick={() => toggleSave(selected.id)}
-                    >
-                      {isSaved ? <Check size={16} /> : <Bookmark size={16} />}{" "}
-                      {isSaved ? "Saved to collection" : "Save this idea"}
-                    </button>
-                    <button
-                      className="icon-button source-link"
-                      aria-label="Read original source"
-                      onClick={() => setDetailTab("evidence")}
-                    >
-                      <BookOpen size={18} />
-                    </button>
-                  </div>
-                  {related.length > 0 && (
-                    <div className="follow-thread">
-                      <span className="overline">PULL ANOTHER THREAD</span>
-                      {related.slice(0, 2).map((n) => (
-                        <button key={n.id} onClick={() => selectNode(n)}>
-                          {n.title}
-                          <ArrowRight size={15} />
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </aside>
-            </section>
-            <footer className="explore-footer">
-              <span>
-                <Sparkles size={14} /> Knowledge isn’t a straight line. Enjoy
-                the detour.
-              </span>
-              <button
-                onClick={() =>
-                  chooseTopic(
-                    topics[(topics.indexOf(topic) + 1) % topics.length],
-                  )
-                }
-              >
-                A different rabbit hole <ArrowRight size={15} />
-              </button>
-            </footer>
-          </>
-        ) : (
-          <section className="collection">
+      </header>
+      <main>
+        <div className="night-heading">
+          <div>
             <div className="eyebrow">
-              <span />
-              YOUR PERSONAL FIELD NOTES
+              <span /> A CITY ON THE EDGE OF SILENCE
             </div>
-            <div className="collection-header">
+            <h1>Keep the light on.</h1>
+            <p>Eight calls. One city. Every voice matters.</p>
+          </div>
+          <div className="night-tag">
+            <span>SCENARIO {state.hard ? "02" : "01"}</span>
+            <strong>{state.hard ? "The long rain" : "The last night"}</strong>
+            <small>
+              <span className="live-dot" /> LIVE TRANSMISSION
+            </small>
+          </div>
+        </div>
+        <div className="game-layout">
+          <section className="city-panel">
+            <div className="map-top">
+              <span>
+                <span className="live-dot" /> CITY OVERVIEW
+              </span>
+              <span>
+                SECTOR 07 <i /> 23:
+                {String(54 + Math.floor((360 - state.time) / 60)).padStart(
+                  2,
+                  "0",
+                )}
+              </span>
+            </div>
+            <City
+              district={call.district}
+              powered={powered}
+              reduced={reduced}
+              departed={state.flags.includes("station")}
+            />
+            <div className="city-vignette" />
+            <div className="weather">
+              12° <span>HEAVY RAIN</span>
+              <small>Grid failure imminent</small>
+            </div>
+            <div
+              className={
+                "district hospital " +
+                (powered.includes("hospital") ? "" : "offline")
+              }
+            >
+              <span className="map-pin" />
               <div>
-                <h1>
-                  Keep the <em>interesting bits.</em>
-                </h1>
-                <p>
-                  Ideas worth coming back to. Connections only you would make.
-                </p>
+                ST. JUDE’S HOSPITAL
+                <small>
+                  {state.flags.includes("station")
+                    ? "BACKUP OFFLINE"
+                    : "CRITICAL POWER"}
+                </small>
               </div>
-              <button
-                className="new-question"
-                disabled={!saved.length}
-                onClick={exportNotes}
-              >
-                <Download size={17} /> Export notes
-              </button>
             </div>
-            {!saved.length ? (
-              <div className="empty-state">
-                <Bookmark size={36} strokeWidth={1} />
-                <h2>Your next discovery belongs here.</h2>
-                <p>Save an idea from the map to start your collection.</p>
+            <div className="district oldtown">
+              <span className="map-pin" />
+              <div>
+                OLD TOWN
+                <small>
+                  {state.flags.includes("bridge")
+                    ? "ROUTE RESTORED"
+                    : "PARTIAL BLACKOUT"}
+                </small>
+              </div>
+            </div>
+            <div
+              className={
+                "district station " +
+                (powered.includes("station") ? "" : "offline")
+              }
+            >
+              <span className="map-pin" />
+              <div>
+                CENTRAL STATION
+                <small>
+                  {state.flags.includes("station")
+                    ? "TRAIN DEPARTED"
+                    : "EVACUATION POINT"}
+                </small>
+              </div>
+            </div>
+            <div className="map-bottom">
+              <div className="map-legend">
+                <span>
+                  <b /> Power online
+                </span>
+                <span>
+                  <b /> Signal lost
+                </span>
+              </div>
+              <span className="coordinates">40°42′ N &nbsp; 74°00′ W</span>
+            </div>
+            <div className="city-caption">
+              <span>THE CITY IS STILL LISTENING.</span>
+              <small>{state.saved} people brought to safety</small>
+            </div>
+          </section>
+          <section className="call-panel" aria-label="Current emergency call">
+            <div className="call-top">
+              <span>
+                <span className="live-dot" />
+                {finished
+                  ? "TRANSMISSION ENDED"
+                  : result
+                    ? "SIGNAL RECEIVED"
+                    : "INCOMING TRANSMISSION"}
+              </span>
+              <span>
+                {String(Math.min(state.turn + (result ? 0 : 1), 8)).padStart(
+                  2,
+                  "0",
+                )}{" "}
+                / 08
+              </span>
+            </div>
+            <div className="turn-track">
+              {Array.from({ length: 8 }, (_, i) => (
+                <span
+                  key={i}
+                  className={
+                    i < state.turn
+                      ? "complete"
+                      : i === state.turn
+                        ? "current"
+                        : ""
+                  }
+                />
+              ))}
+            </div>
+            {result ? (
+              <div className="consequence">
+                <div className="caller-icon">
+                  <Check size={24} />
+                </div>
+                <div className="eyebrow">YOUR SIGNAL MADE A DIFFERENCE</div>
+                <h2>{result.choice}</h2>
+                <p>{result.result}</p>
+                <div className="rescued">
+                  <Users size={16} />{" "}
+                  {result.saved > 0
+                    ? `${result.saved} people reached safety`
+                    : "The city will remember"}
+                </div>
+                <button className="primary" onClick={() => setResult(null)}>
+                  {finished ? "See the aftermath" : "Answer the next call"}
+                  <ArrowRight size={17} />
+                </button>
+              </div>
+            ) : finished ? (
+              <div className="consequence">
+                <div className="eyebrow">AFTERMATH · {state.code}</div>
+                <h2>
+                  {state.saved >= 150
+                    ? "A city carries on."
+                    : "There were lights in the dark."}
+                </h2>
+                <div className="ending-number">
+                  {state.saved}
+                  <span>people reached safety</span>
+                </div>
+                <p>
+                  {state.flags.includes("hospital")
+                    ? "Mara kept the hospital alive."
+                    : "Mara stayed until the very end."}{" "}
+                  {state.flags.includes("engineer")
+                    ? "Eli remembers the voice that brought him home."
+                    : "The maintenance frequency never returned."}{" "}
+                  Your last signal became part of this city.
+                </p>
                 <button
-                  className="primary-button"
-                  onClick={() => setView("explore")}
+                  className="primary"
+                  onClick={() => setPanel("timeline")}
                 >
-                  Follow your curiosity <ArrowRight size={16} />
+                  Trace your decisions
+                  <ArrowRight size={16} />
+                </button>
+                <button
+                  className="text-button"
+                  onClick={() => restart(state.code, state.hard)}
+                >
+                  <RotateCcw size={14} /> Try another way
                 </button>
               </div>
             ) : (
-              <div className="saved-grid">
-                {saved.map((s) => {
-                  const entry = allIdeas.find((e) => e.idea.id === s.id);
-                  if (!entry) return null;
-                  const SavedIcon = icons[entry.idea.icon];
-                  return (
-                    <article className="saved-card" key={s.id}>
-                      <div className="saved-card-top">
-                        <span>
-                          <SavedIcon size={20} />
-                          {entry.idea.category}
-                        </span>
-                        <button
-                          className="icon-button"
-                          aria-label={`Remove ${entry.idea.title}`}
-                          onClick={() => toggleSave(s.id)}
-                        >
-                          <X size={16} />
-                        </button>
-                      </div>
-                      <h2>{entry.idea.title}</h2>
-                      <p>{entry.idea.summary}</p>
-                      <label htmlFor={`note-${s.id}`}>YOUR NOTE</label>
-                      <textarea
-                        id={`note-${s.id}`}
-                        value={s.note}
-                        placeholder="What did this make you think of?"
-                        onChange={(e) =>
-                          setSaved((v) =>
-                            v.map((v) =>
-                              v.id === s.id
-                                ? { ...v, note: e.target.value }
-                                : v,
-                            ),
-                          )
-                        }
-                      />
+              <>
+                <div className="caller">
+                  <div className="caller-icon">
+                    <Radio size={24} />
+                  </div>
+                  <div>
+                    <strong>{call.name}</strong>
+                    <span>{call.role}</span>
+                  </div>
+                  <div className="wave-mini">▁▃▆▂▅▇▃▁</div>
+                </div>
+                <div className="call-body">
+                  <div className="eyebrow">
+                    {state.turn === 0
+                      ? "THE FIRST CALL"
+                      : `CALL ${String(state.turn + 1).padStart(2, "0")}`}
+                  </div>
+                  <h2>{call.title}</h2>
+                  <p className="quote">“{call.message}”</p>
+                  <span className="caption-label">
+                    {captions
+                      ? "[ Rain on the window. A voice waiting. ]"
+                      : "Transmission transcript"}
+                  </span>
+                </div>
+                <div className="choices">
+                  <div className="decision-label">
+                    YOUR CALL. THEIR CONSEQUENCE.
+                  </div>
+                  {call.choices.map((choice, i) => {
+                    const disabled =
+                      state.power + choice.power < 0 ||
+                      state.time < choice.time ||
+                      (state.turn === 2 && i === 0 && !tuned);
+                    return (
                       <button
-                        className="text-button"
-                        onClick={() => chooseTopic(entry.topic, entry.idea)}
+                        className="choice"
+                        key={choice.flag}
+                        disabled={disabled}
+                        onClick={() => choose(choice)}
                       >
-                        Back to the thread <ArrowUpRight size={16} />
+                        <span className="choice-number">0{i + 1}</span>
+                        <span className="choice-copy">
+                          <strong>{choice.label}</strong>
+                          <small>
+                            {disabled && state.turn === 2 && i === 0 && !tuned
+                              ? "Tune the desk radio to 104.2 MHz"
+                              : choice.detail}
+                          </small>
+                          <span className="cost">
+                            {choice.power < 0 ? (
+                              <>
+                                <Zap size={10} />
+                                {choice.power} POWER <i>·</i>
+                              </>
+                            ) : null}
+                            <Clock size={10} /> {choice.time}s <i>·</i>{" "}
+                            {choice.trust > 0 ? "+" : ""}
+                            {choice.trust} TRUST
+                          </span>
+                        </span>
+                        <ArrowUpRight size={18} />
                       </button>
-                    </article>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                  {!remaining && (
+                    <button className="primary" onClick={conserve}>
+                      Keep listening <ArrowRight size={16} />
+                    </button>
+                  )}
+                  <p className="choice-note">
+                    No perfect answers. Just the ones you can live with.
+                  </p>
+                </div>
+              </>
             )}
           </section>
-        )}
+        </div>
+        <section
+          className="radio-desk"
+          aria-label="Radio controls and city resources"
+        >
+          <div className="radio-id">
+            <div className="radio-grille">
+              {Array.from({ length: 9 }, (_, i) => (
+                <i key={i} />
+              ))}
+            </div>
+            <div>
+              <Radio size={18} />
+              <strong>FIELD RADIO</strong>
+              <span>FR–08 / EMERGENCY BAND</span>
+            </div>
+          </div>
+          <div className="tuner">
+            <div className="tuner-header">
+              <span>FREQUENCY</span>
+              <strong>
+                {tune.toFixed(1)} <small>MHz</small>
+              </strong>
+              <span className="signal-bars">▂▄▆█</span>
+            </div>
+            <input
+              type="range"
+              aria-label="Radio frequency"
+              min="88"
+              max="108"
+              step="0.1"
+              value={tune}
+              onChange={(e) => setTune(+e.target.value)}
+            />
+            <div className="tuner-ticks">
+              <span>88</span>
+              <span>92</span>
+              <span>96</span>
+              <span>100</span>
+              <span>104</span>
+              <span>108</span>
+            </div>
+          </div>
+          <div className="resource">
+            <div>
+              <Zap size={14} />
+              <span>POWER</span>
+            </div>
+            <strong>
+              {state.power}
+              <small>%</small>
+            </strong>
+            <div className="resource-bar">
+              <i style={{ width: state.power + "%" }} />
+            </div>
+          </div>
+          <div className="resource">
+            <div>
+              <Clock size={14} />
+              <span>TIME LEFT</span>
+            </div>
+            <strong>
+              {Math.floor(state.time / 60)
+                .toString()
+                .padStart(2, "0")}
+              <em>:</em>
+              {(state.time % 60).toString().padStart(2, "0")}
+            </strong>
+            <small>UNTIL BLACKOUT</small>
+          </div>
+          <div className="resource trust">
+            <div>
+              <Users size={14} />
+              <span>PUBLIC TRUST</span>
+            </div>
+            <strong>
+              {state.trust}
+              <small>%</small>
+            </strong>
+            <div className="resource-bar">
+              <i style={{ width: state.trust + "%" }} />
+            </div>
+          </div>
+        </section>
+        <footer>
+          <span>
+            <Headphones size={13} /> Best experienced with sound{" "}
+            <button onClick={toggleAudio}>
+              {muted ? "Enable audio" : "Audio on"} <ArrowUpRight size={11} />
+            </button>
+          </span>
+          <span>
+            <span className="save-dot" /> Progress saved on this device <i />{" "}
+            <button onClick={() => setPanel("timeline")}>
+              Transmission log <ChevronRight size={12} />
+            </button>
+          </span>
+        </footer>
       </main>
-      {searchOpen && (
-        <div className="modal-backdrop" onClick={() => setSearchOpen(false)}>
-          <section
-            className="search-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Find a rabbit hole"
-            onClick={(e) => e.stopPropagation()}
-            onKeyDown={(e) => {
-              if (e.key === "Tab") {
-                const focusable = e.currentTarget.querySelectorAll<HTMLElement>(
-                  "button, input, a[href]",
-                );
-                const first = focusable[0],
-                  last = focusable[focusable.length - 1];
-                if (e.shiftKey && document.activeElement === first) {
-                  e.preventDefault();
-                  last.focus();
-                } else if (!e.shiftKey && document.activeElement === last) {
-                  e.preventDefault();
-                  first.focus();
-                }
-              }
-            }}
-          >
-            <div className="modal-search">
-              <Search size={21} />
-              <input
-                ref={searchRef}
-                placeholder="What are you curious about?"
-                aria-label="Search ideas"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-              <button
-                className="icon-button"
-                aria-label="Close search"
-                onClick={() => setSearchOpen(false)}
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <div className="search-results">
-              <div className="overline">
-                {query
-                  ? `${results.length} CONNECTED IDEAS`
-                  : "THREE DOORS. COUNTLESS CONNECTIONS."}
-              </div>
-              {query ? (
-                results.length ? (
-                  results.map(({ idea, topic: t }) => (
-                    <button
-                      className="search-result"
-                      key={idea.id}
-                      onClick={() => chooseTopic(t, idea)}
-                    >
-                      <span className={`result-icon ${t.accent}`}>
-                        {React.createElement(icons[idea.icon], { size: 20 })}
-                      </span>
-                      <span>
-                        <strong>{idea.title}</strong>
-                        <small>
-                          {idea.category} · {t.short}
-                        </small>
-                      </span>
-                      <ArrowUpRight size={18} />
-                    </button>
-                  ))
-                ) : (
-                  <div className="no-results">
-                    <Compass size={28} />
-                    <h3>That trail hasn’t been mapped yet.</h3>
-                    <p>
-                      Explore {allIdeas.length} curated ideas. Try “football”,
-                      “music”, “forest”, or “consciousness”.
-                    </p>
-                    <button
-                      className="text-button"
-                      onClick={() => setQuery("")}
-                    >
-                      Explore the starting questions <ArrowRight size={15} />
-                    </button>
-                  </div>
-                )
-              ) : (
-                topics.map((t) => (
+      <div className="bottom-line">
+        <span>WHEN EVERYTHING GOES DARK, BE THE VOICE.</span>
+        <span>
+          LAST SIGNAL © 2026 <Activity size={13} />
+        </span>
+      </div>
+      <dialog
+        ref={dialog}
+        onCancel={() => setPanel("")}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) setPanel("");
+        }}
+      >
+        {panel && (
+          <div className="modal">
+            <button
+              className="close icon-btn"
+              aria-label="Close panel"
+              onClick={() => setPanel("")}
+            >
+              <X size={22} />
+            </button>
+            <div className="eyebrow">LAST SIGNAL / STATION ARCHIVE</div>
+            <h2>
+              {panel === "settings"
+                ? "Your station."
+                : panel === "files"
+                  ? "Case files."
+                  : panel === "nights"
+                    ? "Other nights."
+                    : "The choices that stayed."}
+            </h2>
+            {panel === "settings" ? (
+              <>
+                <div className="setting">
+                  <span>Ambient radio & rain</span>
+                  <button onClick={toggleAudio}>{muted ? "Off" : "On"}</button>
+                </div>
+                <div className="setting">
+                  <span>Atmosphere captions</span>
                   <button
-                    key={t.id}
-                    className="search-result"
-                    onClick={() => chooseTopic(t)}
+                    aria-pressed={captions}
+                    onClick={() => setCaptions(!captions)}
                   >
-                    <span className={`result-icon ${t.accent}`}>
-                      {React.createElement(icons[t.nodes[0].icon], {
-                        size: 22,
-                      })}
-                    </span>
-                    <span>
-                      <strong>{t.title}</strong>
-                      <small>{t.tags.join(" · ")}</small>
-                    </span>
-                    <ArrowUpRight size={18} />
+                    {captions ? "On" : "Off"}
                   </button>
-                ))
-              )}
-            </div>
-            <div className="search-footer">
-              <span>
-                <BookOpen size={13} /> Human-curated. Source-linked. Open to
-                questions.
-              </span>
-              <kbd>ESC to close</kbd>
-            </div>
-          </section>
-        </div>
-      )}
-      {toast && (
-        <div className="toast" role="status">
-          <Check size={17} />
-          {toast}
-        </div>
+                </div>
+                <div className="setting">
+                  <span>Reduced motion</span>
+                  <button
+                    aria-pressed={reduced}
+                    onClick={() => setReduced(!reduced)}
+                  >
+                    {reduced ? "On" : "Off"}
+                  </button>
+                </div>
+                <p>Your choices save automatically in this browser.</p>
+                <button
+                  className="text-button"
+                  onClick={() => setPanel("reset")}
+                >
+                  <RotateCcw size={14} /> Start this night again
+                </button>
+              </>
+            ) : panel === "reset" ? (
+              <>
+                <p>
+                  Restarting clears the current night’s decisions. Your unlocked
+                  scenarios will stay available.
+                </p>
+                <button
+                  className="primary"
+                  onClick={() => restart(state.code, state.hard)}
+                >
+                  Restart the night
+                  <RotateCcw size={15} />
+                </button>
+                <button
+                  className="text-button"
+                  onClick={() => setPanel("settings")}
+                >
+                  Keep my progress
+                </button>
+              </>
+            ) : panel === "files" ? (
+              <>
+                <p>People, places, and signals discovered during your night.</p>
+                {state.log.length === 0 ? (
+                  <div className="archive-empty">
+                    <FolderOpen />
+                    <p>
+                      The first call is waiting. Answer it to open your first
+                      case.
+                    </p>
+                  </div>
+                ) : (
+                  state.log.map((e) => (
+                    <article className="archive-entry" key={e.turn}>
+                      <small>
+                        FILE {String(e.turn).padStart(2, "0")} · {e.saved} SAFE
+                      </small>
+                      <h3>
+                        {getCall(e.turn - 1, state.flags, state.hard).name}
+                      </h3>
+                      <p>{e.result}</p>
+                    </article>
+                  ))
+                )}
+              </>
+            ) : panel === "nights" ? (
+              <>
+                <p>
+                  One city. Different pressures. Each night has eight calls.
+                </p>
+                <button className="scenario" onClick={() => restart()}>
+                  <span>01</span>
+                  <div>
+                    <strong>The last night</strong>
+                    <small>Standard · 100% power · 6 minutes</small>
+                  </div>
+                  <ArrowRight size={18} />
+                </button>
+                <button
+                  className="scenario"
+                  disabled={!unlocked}
+                  onClick={() => restart("LONG-RAIN", true)}
+                >
+                  <span>02</span>
+                  <div>
+                    <strong>The long rain</strong>
+                    <small>
+                      {unlocked
+                        ? "Unlocked · higher power costs"
+                        : "Complete a night to unlock"}
+                    </small>
+                  </div>
+                  <ArrowRight size={18} />
+                </button>
+                <button
+                  className="scenario"
+                  onClick={() =>
+                    restart(
+                      "DAILY-" +
+                        new Intl.DateTimeFormat("en-CA", {
+                          timeZone: "Europe/Paris",
+                        }).format(new Date()),
+                      true,
+                    )
+                  }
+                >
+                  <span>↻</span>
+                  <div>
+                    <strong>Daily transmission</strong>
+                    <small>The long rain · shared daily code</small>
+                  </div>
+                  <ArrowRight size={18} />
+                </button>
+                <label className="code-label">
+                  PLAY A SHARED SCENARIO CODE
+                  <input
+                    placeholder="NIGHT-01 or LONG-RAIN"
+                    value={scenarioCode}
+                    onChange={(e) =>
+                      setScenarioCode(e.target.value.toUpperCase())
+                    }
+                  />
+                </label>
+                <button
+                  className="primary"
+                  disabled={
+                    !/^(NIGHT-01|LONG-RAIN|DAILY-\d{4}-\d{2}-\d{2})$/.test(
+                      scenarioCode,
+                    )
+                  }
+                  onClick={() =>
+                    restart(scenarioCode, scenarioCode !== "NIGHT-01")
+                  }
+                >
+                  Tune in
+                  <ArrowRight size={16} />
+                </button>
+              </>
+            ) : (
+              <>
+                <p>
+                  {state.saved} people reached safety. {state.log.length} of 8
+                  calls answered.
+                </p>
+                {!state.log.length && (
+                  <p>Your timeline begins with the first decision.</p>
+                )}
+                {state.log.map((e) => (
+                  <article className="archive-entry" key={e.turn}>
+                    <small>
+                      TRANSMISSION 0{e.turn} · +{e.saved} SAFE
+                    </small>
+                    <h3>{e.choice}</h3>
+                    <p>{e.result}</p>
+                  </article>
+                ))}
+                <button
+                  className="primary"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(
+                        `LAST SIGNAL · ${state.code} · ${state.saved} saved. Play the same scenario: ${location.origin}`,
+                      );
+                      setNotice("Scenario code copied");
+                    } catch {
+                      setNotice(`Scenario code: ${state.code}`);
+                    }
+                  }}
+                >
+                  <Share2 size={15} /> Share this night
+                </button>
+                <p className="code-label">SCENARIO CODE: {state.code}</p>
+              </>
+            )}
+          </div>
+        )}
+      </dialog>
+      {notice && (
+        <button className="toast" onClick={() => setNotice("")}>
+          {notice} <X size={14} />
+        </button>
       )}
     </div>
   );
 }
-function ForestArt() {
-  return (
-    <svg
-      className="forest-art"
-      viewBox="0 0 360 180"
-      fill="none"
-      aria-hidden="true"
-    >
-      <defs>
-        <linearGradient
-          id="treeGlow"
-          x1="180"
-          y1="10"
-          x2="180"
-          y2="180"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop stopColor="#d7e6a0" />
-          <stop offset="1" stopColor="#718963" />
-        </linearGradient>
-      </defs>
-      <g stroke="url(#treeGlow)" strokeWidth="1.2">
-        <path d="M180 143V36M180 65l-25-18m25 33 29-24m-29 41-44-29m44 43 47-34m-47 48-57-25m57 33 58-25M155 47l-4-15m4 15-20-3m74 12 3-17m-3 17 21-4M136 68l-8-20m8 20-26-1m117 10 10-23m-10 23 25-4m-129 27-16-22m16 22-25-3m140 11 17-21m-17 21 27-6M180 143l-22 17-30 9m52-26 18 19 31 10m-49-29-4 31m4-31-42 9-24-3m66-6 42 4 22-11" />
-        <path d="M180 37l-9-15m9 15 9-14m-9 120-14 14m-8 3-2 12m42-10 2 13m-62-23-8 8m92-13 15 8" />
-      </g>
-      <g fill="#c9dba0">
-        <circle cx="180" cy="34" r="3" />
-        <circle cx="155" cy="47" r="2" />
-        <circle cx="209" cy="56" r="2.5" />
-        <circle cx="136" cy="68" r="2.5" />
-        <circle cx="227" cy="77" r="3" />
-        <circle cx="123" cy="100" r="2" />
-        <circle cx="238" cy="108" r="2.5" />
-      </g>
-      <ellipse
-        cx="180"
-        cy="142"
-        rx="93"
-        ry="10"
-        stroke="#8ea176"
-        strokeOpacity=".2"
-      />
-      <ellipse
-        cx="180"
-        cy="142"
-        rx="119"
-        ry="20"
-        stroke="#8ea176"
-        strokeOpacity=".12"
-      />
-    </svg>
-  );
-}
-
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <App />
