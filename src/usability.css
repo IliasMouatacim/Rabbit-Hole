@@ -1,0 +1,306 @@
+/* Usability layer for the question journey: clearer hierarchy, readable
+   labels, persistent primary actions, and less chrome above the question.
+   Loaded after the other journey stylesheets so it can refine them. */
+
+/* ---------- Header ---------- */
+.journey-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.journey-nav-actions .web-share,
+.journey-nav-actions .journey-map-link {
+  min-height: 42px;
+  padding: 10px 14px;
+  border-radius: 7px;
+  font-size: 12px;
+}
+
+/* ---------- Subject + view toolbar (one row instead of three) ---------- */
+.journey-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 3vw 18px;
+}
+.journey-toolbar .subject-rail {
+  flex: 1;
+  min-width: 0;
+  padding: 2px;
+}
+.journey-toolbar .journey-views {
+  flex-shrink: 0;
+  padding: 0;
+  gap: 4px;
+  border: 1px solid #78886b55;
+  border-radius: 10px;
+  padding: 4px;
+}
+.journey-toolbar .journey-views button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: 0;
+  padding: 9px 13px;
+  min-height: 38px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.journey-toolbar .journey-views button:focus-visible {
+  outline: 2px solid #e0edbb;
+  outline-offset: 2px;
+}
+.subject-rail small {
+  font-size: 11px;
+}
+.subject-rail button span {
+  font-size: 13px;
+}
+
+/* ---------- Step indicator ---------- */
+.journey-steps {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+  list-style: none;
+  margin: 0 0 22px;
+  padding: 0 0 16px;
+  border-bottom: 1px solid #bed3a72b;
+  font-size: 12px;
+  color: #9fb093;
+}
+.journey-steps li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.journey-steps b {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  font-size: 11px;
+  font-weight: 600;
+}
+.journey-step-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.journey-step-link:hover {
+  color: var(--discovery-accent, #c1de91);
+}
+.journey-steps [aria-current="step"] {
+  color: var(--discovery-accent, #c1de91);
+  font-weight: 600;
+}
+.journey-steps [aria-current="step"] b {
+  background: var(--discovery-accent, #c1de91);
+  border-color: var(--discovery-accent, #c1de91);
+  color: #172212;
+}
+.journey-steps .journey-steps-count {
+  margin-left: auto;
+  font-size: 11px;
+  color: #93a587;
+}
+.journey-steps .journey-steps-skip {
+  margin-left: auto;
+}
+.journey-steps .journey-steps-skip button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border: 1px solid
+    color-mix(in srgb, var(--discovery-accent, #c1de91) 45%, transparent);
+  border-radius: 6px;
+  background: color-mix(
+    in srgb,
+    var(--discovery-accent, #c1de91) 12%,
+    transparent
+  );
+  color: var(--discovery-accent, #c1de91);
+  font-size: 11px;
+  font-weight: 500;
+}
+.journey-steps .journey-steps-skip button:hover {
+  background: color-mix(
+    in srgb,
+    var(--discovery-accent, #c1de91) 22%,
+    transparent
+  );
+}
+
+/* ---------- Question view ---------- */
+.web-question-panel .question-category {
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+.web-question-panel .question-hint {
+  font-size: 14px;
+}
+.web-question-panel .answer-option > span:nth-child(2) {
+  font-size: 15px;
+  line-height: 1.5;
+}
+.web-question-panel .answer-letter {
+  width: 30px;
+  height: 30px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.web-question-panel .answer-option {
+  cursor: pointer;
+}
+.branch-explored small {
+  font-size: 10px;
+}
+.branch-preview > span {
+  font: 600 11px Manrope, sans-serif;
+  letter-spacing: 0.2px;
+}
+.branch-preview p {
+  font-size: 14px;
+}
+.web-branch-help {
+  font-size: 12px;
+  line-height: 1.7;
+}
+.web-branch-help kbd {
+  display: inline-block;
+  min-width: 20px;
+  padding: 1px 6px;
+  margin: 0 1px;
+  border: 1px solid #a7c27b66;
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  font: 600 11px Manrope, sans-serif;
+  text-align: center;
+  color: #dce8cc;
+}
+.web-question-panel .answer-bridge strong {
+  font-size: 13px;
+}
+.web-question-panel .answer-bridge p {
+  font-size: 12px;
+  line-height: 1.7;
+}
+.web-question-panel .answer-bridge span {
+  font-size: 11px;
+}
+.web-question-panel .journey-back,
+.web-panel-actions button,
+.web-question-panel .question-context summary {
+  font-size: 13px;
+}
+.web-question-panel .journey-back:disabled {
+  opacity: 0.4;
+}
+
+/* ---------- Discovery view ---------- */
+.discovery-eyebrow,
+.connection-reward > span,
+.experiment-heading > span {
+  font-size: 11px;
+  letter-spacing: 1.2px;
+}
+.discovery-card > p {
+  font-size: 15px;
+  line-height: 1.8;
+}
+.discovery-evidence p,
+.discovery-evidence a {
+  font-size: 13px;
+}
+.experiment small {
+  font-size: 12px;
+}
+.experiment-buttons button,
+.discovery-actions button {
+  font-size: 13px;
+}
+.discovery-actions button:last-child {
+  font-weight: 600;
+  padding-inline: 18px;
+}
+
+/* ---------- Map ---------- */
+.web-experience .web-node-top {
+  font-size: 10px;
+}
+.web-experience .web-gesture-hint {
+  font-size: 11px;
+}
+.web-experience .journey-footer {
+  font-size: 10px;
+}
+
+@media (max-width: 1100px) {
+  .journey-toolbar {
+    flex-wrap: wrap;
+  }
+  .journey-toolbar .subject-rail {
+    flex-basis: 100%;
+  }
+}
+@media (max-width: 800px) {
+  .journey-nav-actions {
+    gap: 6px;
+  }
+  .journey-nav-actions .web-share,
+  .journey-nav-actions .journey-map-link {
+    min-height: 40px;
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+  .journey-toolbar {
+    padding: 16px 12px 14px;
+    gap: 10px;
+  }
+  .journey-toolbar .journey-views {
+    width: 100%;
+  }
+  .journey-toolbar .journey-views button {
+    flex: 1;
+    justify-content: center;
+  }
+  .journey-steps .journey-steps-count {
+    margin-left: 0;
+    flex-basis: 100%;
+  }
+  .web-question-panel .answer-option > span:nth-child(2) {
+    font-size: 15px;
+  }
+  .mobile-web-dock small {
+    font-size: 10px;
+  }
+  .mobile-web-dock button {
+    font-size: 12px;
+  }
+}
+@media (max-width: 420px) {
+  .journey-nav-actions .web-share {
+    font-size: 0;
+    gap: 0;
+  }
+  .journey-nav-actions .web-share svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+/* Keyboard hints are noise on touch screens. */
+@media (hover: none) {
+  .web-branch-help .kbd-hint {
+    display: none;
+  }
+}

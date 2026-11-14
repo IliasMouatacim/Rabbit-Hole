@@ -4,5 +4,3 @@ test-results/
 playwright-report/
 *.local
 *.tsbuildinfo
-
-work/
