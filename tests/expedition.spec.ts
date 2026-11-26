@@ -1,7 +1,8 @@
 import { test, expect, type Page } from '@playwright/test';
 import { fragmentQuestions } from '../src/descent-profile';
+import { quizPool } from '../src/quiz-data';
 import { questionById } from '../src/questions';
-import { ability, activeLinks, bargain, chooseUpgrade, guardianWager, dailySeed, expeditionScore, makeChart, moveCost, newExpedition, nextThreat, resolveEncounter, travel, type Chart, type Expedition } from '../src/expedition-engine';
+import { ability, activeLinks, bargain, chooseUpgrade, answerGuardian, leaveGuardian, random, dailySeed, expeditionScore, makeChart, moveCost, newExpedition, nextThreat, resolveEncounter, travel, type Chart, type Expedition } from '../src/expedition-engine';
 
 function route(chart:Chart, run:Expedition, target:number):number[] {
   const queue = [{node:run.node,path:[] as number[],cost:0}], visited=new Set<number>();
@@ -164,9 +165,9 @@ test('three codex entries per world and one upgrade per recovered fragment', () 
   expect(chooseUpgrade(upgraded, 'Scan charge')).toBe(upgraded);
   expect(ability(chart, upgraded, 'reroute').energy).toBe(upgraded.energy);
   const wager = { ...run, guardian: 6 };
-  expect(guardianWager(wager, true).energy).toBe(run.energy + 2);
-  expect(guardianWager(wager, false).energy).toBe(run.energy - 2);
-  expect(guardianWager(wager, null).used).toContain(6);
+  expect(answerGuardian(wager, 'right', true).energy).toBe(run.energy + 2);
+  expect(answerGuardian(wager, 'wrong', false).energy).toBe(run.energy - 2);
+  expect(leaveGuardian(wager).used).toContain(6);
 });
 
 test('a last-energy escape carries the kit and cumulative score into the next depth', async ({ page }) => {
@@ -197,4 +198,24 @@ test('a last-energy escape carries the kit and cumulative score into the next de
   await expect(page.locator('.exp-board-hud')).toContainText('DEPTH 2/5');
   await expect(page.getByRole('button', { name: /Shield ability, 1 charges/ })).toContainText('ARMED');
   await expect(page.locator('.exp-run-stats')).toContainText(String(expeditionScore(cleared) + 60));
+});
+
+test('a guardian wager is charged once and its feedback survives reload', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  const seed = 'GUARDIAN-CHECK';
+  const questions = quizPool('ocean');
+  const question = questions[Math.floor(random('ocean' + seed)() * questions.length)];
+  const wrong = question.answers.find(answer => answer !== question.correct)!;
+  await page.goto(`/#play/ocean?run=expedition&seed=${seed}`);
+  await page.getByRole('button', { name: 'Begin expedition' }).click();
+  await page.getByRole('button', { name: /node 6$/ }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByRole('button', { name: wrong, exact: true }).click();
+  await expect(dialog.getByRole('status')).toContainText(question.fact);
+  await page.reload();
+  await expect(dialog.getByRole('status')).toContainText(question.fact);
+  await expect(dialog.getByRole('button', { name: question.correct, exact: true })).toBeDisabled();
+  await dialog.getByRole('button', { name: 'Continue', exact: true }).click();
+  await expect(page.locator('.exp-board-hud')).toContainText('25ENERGY');
+  await expect(page.getByRole('status')).toContainText('kept your 2 energy wager');
 });

@@ -3,7 +3,7 @@ export type Mode = 'challenge' | 'practice';
 export type Loadout = 'scout' | 'guardian';
 export type Site = { id: number; x: number; y: number; kind: 'start' | 'fragment' | 'cache' | 'hazard' | 'bargain' | 'secret' | 'exit' | 'junction'; name: string };
 export type Chart = { seed: string; nodes: Site[]; links: Link[]; secretLinks: Link[]; fragments: number[] };
-export type Expedition = { node: number; energy: number; moves: number; fragments: number[]; visited: number[]; revealed: number[]; used: number[]; scan: number; shield: number; reroute: number; armed: boolean; extra: Link[]; broken: Link[]; threat: number; phase: 'explore' | 'escape'; escape: number; encounter: number | null; event: number | null; status: 'playing' | 'won' | 'lost' | 'extracted'; message: string; cause: string; discoveries: string[]; mode: Mode; loadout: Loadout; modifier: boolean; scanned: number; world?: string; path?: number[]; upgrades?: Upgrade[]; reward?: boolean; guardian?: number; freeReroutes?: number };
+export type Expedition = { node: number; energy: number; moves: number; fragments: number[]; visited: number[]; revealed: number[]; used: number[]; scan: number; shield: number; reroute: number; armed: boolean; extra: Link[]; broken: Link[]; threat: number; phase: 'explore' | 'escape'; escape: number; encounter: number | null; event: number | null; status: 'playing' | 'won' | 'lost' | 'extracted'; message: string; cause: string; discoveries: string[]; mode: Mode; loadout: Loadout; modifier: boolean; scanned: number; world?: string; path?: number[]; upgrades?: Upgrade[]; reward?: boolean; guardian?: number; guardianAnswer?: string; freeReroutes?: number };
 
 export function normalSeed(value: string) { return value.toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 24) || 'ABYSS-001'; }
 export function random(seed: string) { let value = 2166136261; for (const c of seed) value = Math.imul(value ^ c.charCodeAt(0), 16777619); return () => { value += 0x6D2B79F5; let t = Math.imul(value ^ value >>> 15, 1 | value); t ^= t + Math.imul(t ^ t >>> 7, 61 | t); return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -189,11 +189,23 @@ export function threatInterval(run: Expedition) {
   return run.world === 'music' ? run.fragments.length + 2 : run.world === 'football' ? 2 : 3;
 }
 
-export function guardianWager(run: Expedition, result: boolean | null): Expedition {
-  if (run.guardian === undefined || run.status !== 'playing' || (result !== null && run.energy <= 2)) return run;
+export function answerGuardian(run: Expedition, answer: string, correct: boolean): Expedition {
+  if (run.guardian === undefined || run.guardianAnswer !== undefined || run.status !== 'playing' || run.energy <= 2) return run;
   return {
-    ...run, used: [...run.used, run.guardian], guardian: undefined,
-    energy: run.energy + (result === null ? 0 : result ? 2 : -2),
-    message: result === null ? 'You passed the guardian.' : result ? 'Correct. Your wager earned 2 energy.' : 'The guardian kept your 2 energy wager.',
+    ...run,
+    guardianAnswer: answer,
+    energy: run.energy + (correct ? 2 : -2),
+    message: correct ? 'Correct. Your wager earned 2 energy.' : 'The guardian kept your 2 energy wager.',
+  };
+}
+
+export function leaveGuardian(run: Expedition): Expedition {
+  if (run.guardian === undefined || run.status !== 'playing') return run;
+  return {
+    ...run,
+    used: [...run.used, run.guardian],
+    guardian: undefined,
+    guardianAnswer: undefined,
+    message: run.guardianAnswer === undefined ? 'You passed the guardian.' : run.message,
   };
 }
