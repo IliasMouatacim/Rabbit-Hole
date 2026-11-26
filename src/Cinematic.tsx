@@ -16,7 +16,7 @@ import { topics } from "./data";
 import { questions } from "./questions";
 import HeroDiscovery from "./HeroDiscovery";
 import Observatory from "./Observatory";
-import { createCuriosityScene } from "./curiosity-scene";
+import type { createCuriosityScene } from "./curiosity-scene";
 import "./cinematic.css";
 
 const clamp = (v: number, min = 0, max = 1) => Math.min(max, Math.max(min, v));
@@ -56,7 +56,7 @@ export default function Cinematic({
   );
   const [activeWorld, setActiveWorld] = useState(0);
   const activeWorldRef = useRef(0);
-  const [webgl, setWebgl] = useState(true);
+  const [webgl, setWebgl] = useState(false);
   const [systemReduced, setSystemReduced] = useState(
     () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
@@ -122,12 +122,6 @@ export default function Cinematic({
           anchors: false,
         })
       : undefined;
-    try {
-      scene = createCuriosityScene(surface);
-      setWebgl(true);
-    } catch {
-      setWebgl(false);
-    }
     const resize = () => {
       height = window.innerHeight;
       heroTop = hero.offsetTop;
@@ -321,6 +315,19 @@ export default function Cinematic({
       }
     };
     resize();
+    if (motion) {
+      import("./curiosity-scene").then(({ createCuriosityScene }) => {
+        if (disposed) return;
+        scene = createCuriosityScene(surface);
+        scene.resize(window.innerWidth, height);
+        dirty = true;
+        setWebgl(true);
+      }).catch(() => {
+        if (!disposed) setWebgl(false);
+      });
+    } else {
+      setWebgl(false);
+    }
     window.addEventListener("resize", resize);
     window.addEventListener("scroll", scroll, { passive: true });
     window.addEventListener("pointermove", pointerMove, { passive: true });

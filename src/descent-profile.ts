@@ -6,7 +6,7 @@ export const descentWorlds = ['ocean', 'forest', 'dreams', 'football', 'music'];
 export const fragmentQuestions: Record<string, string[]> = {
   ocean: ['ocean', 'energy', 'discovery'],
   forest: ['forest', 'signals', 'resilience'],
-  dreams: ['dreams', 'memory', 'transfer'],
+  dreams: ['dreams', 'memory', 'lucidity'],
   football: ['football', 'football-tactics', 'football-possession'],
   music: ['music', 'music-rhythm', 'music-connection'],
 };

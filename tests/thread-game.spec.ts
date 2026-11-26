@@ -50,6 +50,6 @@ test('mobile keyboard movement, undo, help, and exploration remain usable', asyn
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.getByRole('button', { name: 'Discovery archive', exact: true }).click();
   await expect(page).toHaveURL(/#journey\/ocean/);
-  await page.getByRole('button', { name: 'Play Thread' }).click();
+  await page.getByRole('button', { name: 'Play expedition' }).click();
   await expect(page).toHaveURL(/#play\/ocean/);
 });

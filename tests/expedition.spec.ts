@@ -1,5 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
-import { ability, activeLinks, bargain, dailySeed, makeChart, moveCost, newExpedition, nextThreat, resolveEncounter, travel, type Chart, type Expedition } from '../src/expedition-engine';
+import { fragmentQuestions } from '../src/descent-profile';
+import { questionById } from '../src/questions';
+import { ability, activeLinks, bargain, chooseUpgrade, guardianWager, dailySeed, makeChart, moveCost, newExpedition, nextThreat, resolveEncounter, travel, type Chart, type Expedition } from '../src/expedition-engine';
 
 function route(chart:Chart, run:Expedition, target:number):number[] {
   const queue = [{node:run.node,path:[] as number[],cost:0}], visited=new Set<number>();
@@ -145,4 +147,24 @@ test('recovering a fragment unlocks its codex node and restores the pending upgr
   await page.getByRole('button', { name: 'Discovery archive' }).click();
   await expect(page.locator('.web-node.is-recovered')).toHaveCount(1);
   await expect(page.getByText('Expedition codex · 1')).toBeVisible();
+});
+
+test('three codex entries per world and one upgrade per recovered fragment', () => {
+  for (const [world, ids] of Object.entries(fragmentQuestions)) {
+    expect(new Set(ids).size).toBe(3);
+    expect(ids.map(id => questionById.get(id)?.world)).toEqual([world, world, world]);
+  }
+  const chart = makeChart('FIELD-TEST');
+  const run = newExpedition('challenge', 'scout', false, 'ocean');
+  const recovered = resolveEncounter({ ...run, encounter: chart.fragments[0] }, chart, 'Vents');
+  expect(recovered.reward).toBe(true);
+  expect(ability(chart, recovered, 'scan')).toBe(recovered);
+  const upgraded = chooseUpgrade(recovered, 'Free Reroute');
+  expect(upgraded.reward).toBe(false);
+  expect(chooseUpgrade(upgraded, 'Scan charge')).toBe(upgraded);
+  expect(ability(chart, upgraded, 'reroute').energy).toBe(upgraded.energy);
+  const wager = { ...run, guardian: 6 };
+  expect(guardianWager(wager, true).energy).toBe(run.energy + 2);
+  expect(guardianWager(wager, false).energy).toBe(run.energy - 2);
+  expect(guardianWager(wager, null).used).toContain(6);
 });

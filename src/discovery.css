@@ -901,3 +901,30 @@
   margin-block: .65rem;
   color: var(--rh-accent);
 }
+
+.journey-nav-actions .journey-play {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 14px;
+  background: var(--rh-accent);
+  color: var(--rh-bg);
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+@media (max-width: 560px) {
+  .web-experience .journey-nav {
+    gap: 8px;
+    padding-inline: 12px;
+  }
+  .journey-nav-actions .journey-play {
+    width: 44px;
+    padding: 0;
+  }
+  .journey-nav-actions .journey-play span { display: none; }
+}

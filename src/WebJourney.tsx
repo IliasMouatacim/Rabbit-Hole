@@ -5,6 +5,7 @@ import {
   ArrowUpRight,
   Check,
   Columns2,
+  Compass,
   GitBranch,
   Map,
   RotateCcw,
@@ -223,8 +224,8 @@ export default function WebJourney({
   });
   function select(id: string) {
     setState((previous) => selectDiscovered(world, previous, id));
+    setDiscovering(!listOpen);
     setListOpen(false);
-    setDiscovering(true);
     revealPanel();
     requestAnimationFrame(() =>
       heading.current?.focus({ preventScroll: true }),
@@ -297,7 +298,7 @@ export default function WebJourney({
             rabbit hole<span className="logo-period">®</span>
           </button>
           <div className="journey-nav-actions">
-            <button onClick={onPlay} style={{ background: '#c9f78b', color: '#142018', borderRadius: 6, padding: '12px 18px', border: 0, fontWeight: 600 }}>Play expedition</button>
+            <button className="journey-play" onClick={onPlay} aria-label="Play expedition"><Compass size={16} aria-hidden="true" /><span>Play expedition</span></button>
             <button className="web-share" onClick={share}>
               <Share2 size={14} /> Share web
             </button>
