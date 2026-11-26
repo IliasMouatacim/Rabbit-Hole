@@ -19,3 +19,17 @@
 .observatory-copy p, .observatory-footnote { color: var(--rh-muted); }
 .observatory-enter { min-height: 54px; font-size: var(--rh-body-size); }
 .observatory-random { min-height: 44px; }
+
+.observatory-mission {
+  max-width: 520px;
+  margin: 24px 0;
+  padding: clamp(13px, 2vw, 20px);
+  border: 1px solid color-mix(in srgb, var(--world-glow), transparent 74%);
+  border-radius: 15px;
+  background: linear-gradient(130deg, color-mix(in srgb, var(--world-glow) 10%, var(--rh-bg)), var(--rh-bg) 75%);
+}
+.observatory-mission > strong { color: var(--rh-ink); font: 700 1rem var(--rh-display); }
+.observatory-mission > p { margin: 7px 0 14px; font-size: .875rem; line-height: 1.5; }
+@media (max-width: 600px) {
+  .observatory-mission { margin-block: 16px; }
+}

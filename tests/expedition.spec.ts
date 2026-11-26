@@ -219,3 +219,30 @@ test('a guardian wager is charged once and its feedback survives reload', async 
   await expect(page.locator('.exp-board-hud')).toContainText('25ENERGY');
   await expect(page.getByRole('status')).toContainText('kept your 2 energy wager');
 });
+
+test('the final ascent in Music clears the five-world route and shows the Descent finale', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  const seed = 'FINAL-ASCENT';
+  const lastDepth: Expedition = {
+    ...newExpedition('challenge', 'scout', false, 'music'),
+    phase: 'escape', escape: 1, energy: 10,
+    fragments: makeChart(`5-${seed}`).fragments,
+    extra: [[0,18]],
+  };
+  await page.addInitScript(({ seed, lastDepth }) => {
+    localStorage.setItem(`rh-run-v1:descent:chain:${seed}:challenge:scout:false`, JSON.stringify({
+      history: [lastDepth], world: 'music', score: 4000,
+    }));
+  }, { seed, lastDepth });
+  await page.goto(`/#play/music?run=descent&seed=${seed}`);
+  const progress = page.getByRole('region', { name: 'Descent progress' });
+  await expect(progress).toContainText('4 of 5 worlds cleared');
+  await expect(progress.locator('[aria-current="step"]')).toContainText('Music');
+  await page.getByRole('button', { name: /node 18$/ }).click();
+  const finale = page.getByRole('dialog', { name: 'You completed the Descent.' });
+  await expect(finale).toContainText('all 15 fragments');
+  await expect(finale.locator('[data-cleared="true"]')).toHaveCount(5);
+  await expect(finale.getByRole('button', { name: 'Copy result' })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});

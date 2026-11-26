@@ -59,3 +59,65 @@
 }
 .exp-next-depth p { margin: 0 0 .75rem; }
 .exp-next-depth strong { color: var(--thread-accent); }
+
+.exp-descent-map {
+  margin: 0 0 24px;
+  padding: clamp(12px, 2vw, 20px);
+  border: 1px solid #a7bfe62e;
+  border-radius: 14px;
+  background: linear-gradient(115deg, #202e3ed9, #0b1119d9);
+}
+.exp-descent-map > div {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  align-items: baseline;
+  margin-bottom: 12px;
+}
+.exp-descent-map > div strong { font: 700 .95rem var(--rh-display); }
+.exp-descent-map > div span { color: var(--rh-muted); font-size: .8rem; }
+
+.exp-descent-finale {
+  text-align: center;
+  border-color: #ffafd875;
+  background: radial-gradient(ellipse at 50% 0%, #41254f, transparent 54%), #111622;
+}
+.exp-descent-finale .exp-end-symbol { display: none; }
+.exp-descent-finale .thread-eyebrow { color: #ffc3e3; }
+.exp-descent-finale .descent-route { margin: 20px auto; }
+.exp-descent-finale .exp-end-stats { border-color: #ffc3e34d; }
+.exp-descent-finale .exp-end-actions { justify-content: center; }
+.exp-descent-finale .exp-end-actions button { min-height: 44px; }
+
+.exp-finale-art {
+  display: grid;
+  place-items: center;
+  width: min(100%, 380px);
+  height: 118px;
+  margin: 0 auto 12px;
+  border-radius: 999px;
+  background: radial-gradient(ellipse, #e978ca45, transparent 67%);
+}
+.exp-finale-disc {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 106px;
+  aspect-ratio: 1;
+  border: 1px solid #ffbbdec2;
+  border-radius: 50%;
+  color: #fff0fa;
+  background: radial-gradient(circle, #7b467c 15%, #351d4b 34%, transparent 36%),
+    repeating-radial-gradient(circle, #b377b06b 0 1px, transparent 1px 7px),
+    conic-gradient(from 30deg, #2d2548, #a75181, #2c244b, #774782, #2d2548);
+  box-shadow: 0 0 30px #eda0d262, inset 0 0 14px #150e34;
+}
+.exp-finale-disc > svg { width: 27px; height: 27px; }
+@media (prefers-reduced-motion: no-preference) {
+  .exp-finale-disc { animation: exp-record-appear .7s ease-out both; }
+}
+@keyframes exp-record-appear {
+  from { opacity: 0; transform: scale(.72) rotate(-28deg); }
+  to { opacity: 1; transform: scale(1) rotate(0); }
+}

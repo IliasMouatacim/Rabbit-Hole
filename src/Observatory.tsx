@@ -1,6 +1,7 @@
 import { useState, type CSSProperties } from 'react';
 import { ArrowDown, ArrowUpRight, Shuffle } from 'lucide-react';
 import { dailyStreak, readProfile } from './descent-profile';
+import DescentRoute from './DescentRoute';
 import './observatory.css';
 
 const worlds = [
@@ -21,7 +22,11 @@ export default function Observatory({ onEnter, onDescend }: { onEnter: (id: stri
       <div className="observatory-copy">
         <span className="observatory-kicker">GET A LITTLE LOST.</span>
         <h1>Nothing exists<br />in <em>isolation.</em><sup><ArrowUpRight size={32}/></sup></h1>
-        <p>Recover three fragments in each world.<br />Get out before the routes collapse.</p>
+        <div className="observatory-mission">
+          <strong>Five worlds. One way out.</strong>
+          <p>Find three fragments in each world, then reach the exit before your escape moves run out. Escape Music to finish the Daily Descent.</p>
+          <DescentRoute />
+        </div>
         <button className="observatory-enter" onClick={() => onEnter('ocean', 'daily')}>Start Daily Descent <ArrowUpRight size={20} /></button>
         <button className="observatory-random" onClick={() => setActive((active + 1 + Math.floor(Math.random() * 4)) % 5)}><Shuffle size={14} /> Surprise me with a world</button>
         <button className="observatory-random" onClick={() => onEnter(world.id, 'expedition')}>Start {world.label} Expedition <ArrowUpRight size={16}/></button><div className="observatory-footnote">{streak}-day streak · New chart each day</div>

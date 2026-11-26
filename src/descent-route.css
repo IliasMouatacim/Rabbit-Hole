@@ -1,0 +1,62 @@
+.descent-route {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  color: var(--rh-ink);
+}
+
+.descent-route li {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 5px;
+  padding: 4px 0;
+  text-align: center;
+}
+
+.descent-route li + li::before {
+  content: "";
+  position: absolute;
+  top: 23px;
+  left: calc(-50% + 23px);
+  right: calc(50% + 23px);
+  border-block-start: 1px solid color-mix(in srgb, var(--stop-color), transparent 64%);
+}
+
+.descent-route-icon {
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  width: 39px;
+  height: 39px;
+  margin-bottom: 2px;
+  color: var(--stop-color);
+  border: 1px solid color-mix(in srgb, var(--stop-color), transparent 58%);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--stop-color) 12%, #10151f);
+}
+
+.descent-route li:is([aria-current], [data-cleared="true"]) .descent-route-icon {
+  border-color: var(--stop-color);
+  box-shadow: 0 0 17px color-mix(in srgb, var(--stop-color), transparent 75%);
+}
+
+.descent-route li[aria-current] .descent-route-icon {
+  background: var(--stop-color);
+  color: #131721;
+}
+
+.descent-route-name { font: 700 clamp(.69rem, 2.4vw, .87rem)/1.2 var(--rh-display); }
+.descent-route-state {
+  min-height: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--rh-muted);
+  font-size: .68rem;
+  line-height: 1.2;
+}
