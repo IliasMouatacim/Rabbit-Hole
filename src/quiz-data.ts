@@ -97,3 +97,7 @@ export const levelNames=['First light','Find your rhythm','Beyond the obvious','
 export function levelQuestions(world:string,level:number):QuizQuestion[]{return(bank[world]||bank.ocean).slice(level*3,level*3+3).map(([prompt,correct,a,b,c,fact])=>({prompt,correct,answers:[correct,a,b,c],fact}));}
 export type QuizProgress = Record<string,{unlocked:number;bests:number[]}>;
 export function readQuizProgress():QuizProgress{try{const data=JSON.parse(localStorage.getItem('rh-quiz-progress')||'{}');return Object.fromEntries(quizWorlds.map(w=>[w.id,{unlocked:Math.min(4,Math.max(0,Number.isInteger(data?.[w.id]?.unlocked)?data[w.id].unlocked:0)),bests:Array.from({length:5},(_,i)=>{const n=data?.[w.id]?.bests?.[i];return Number.isInteger(n)&&n>=0&&n<=1000?n:0;})}]));}catch{return Object.fromEntries(quizWorlds.map(w=>[w.id,{unlocked:0,bests:[0,0,0,0,0]}]));}}
+
+export function quizPool(world: string): QuizQuestion[] {
+  return Array.from({ length: 5 }, (_, level) => levelQuestions(world, level)).flat();
+}

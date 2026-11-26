@@ -1,5 +1,6 @@
 import { useState, type CSSProperties } from 'react';
 import { ArrowDown, ArrowUpRight, Shuffle } from 'lucide-react';
+import { dailyStreak, readProfile } from './descent-profile';
 import './observatory.css';
 
 const worlds = [
@@ -10,19 +11,20 @@ const worlds = [
   { id: 'music', name: 'Organised emotion', label: 'Music', color: '#ff9daf', question: 'Why does a sound give you chills?', detail: 'Bend a melody and play with expectation. Follow a feeling into the science of sound.', tag: '05 / FEEL THE FREQUENCY', shape: 'music' },
 ];
 
-export default function Observatory({ onEnter, onDescend }: { onEnter: (id: string) => void; onDescend: () => void }) {
+export default function Observatory({ onEnter, onDescend }: { onEnter: (id: string, mode?: 'expedition' | 'daily') => void; onDescend: () => void }) {
   const [active, setActive] = useState(0);
   const world = worlds[active];
+  const streak = dailyStreak(readProfile());
   return <section className="observatory" style={{ '--world-glow': world.color } as CSSProperties} aria-label="Curiosity observatory">
     <div className="observatory-topline"><span><i /> A PLAYGROUND FOR THE CURIOUS</span><span>FIVE WORLDS. NO STRAIGHT LINES.</span></div>
     <div className="observatory-layout">
       <div className="observatory-copy">
         <span className="observatory-kicker">GET A LITTLE LOST.</span>
         <h1>Nothing exists<br />in <em>isolation.</em><sup><ArrowUpRight size={32}/></sup></h1>
-        <p>Pull on a question. Unravel a world.<br />See where your curiosity takes you.</p>
-        <button className="observatory-enter" onClick={() => onEnter(world.id)}>Play the connection game <ArrowUpRight size={20} /></button>
+        <p>Recover three fragments in each world.<br />Get out before the routes collapse.</p>
+        <button className="observatory-enter" onClick={() => onEnter('ocean', 'daily')}>Start Daily Descent <ArrowUpRight size={20} /></button>
         <button className="observatory-random" onClick={() => setActive((active + 1 + Math.floor(Math.random() * 4)) % 5)}><Shuffle size={14} /> Surprise me with a world</button>
-        <div className="observatory-footnote"><span>✳</span> No score. No right path.<br />Just a very good question.</div>
+        <button className="observatory-random" onClick={() => onEnter(world.id, 'expedition')}>Start {world.label} Expedition <ArrowUpRight size={16}/></button><div className="observatory-footnote">{streak}-day streak · New chart each day</div>
       </div>
       <div className="observatory-instrument">
         <div className="observatory-coordinate">INTERCONNECTED SYSTEM / LIVE EXPLORATION <span>+ 00{active + 1}</span></div>

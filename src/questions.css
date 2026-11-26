@@ -500,8 +500,7 @@
 }
 .trail-possibilities span {
   font:
-    italic 12px Georgia,
-    serif;
+    italic 12px var(--rh-display);
   position: absolute;
   left: 45px;
   top: 15px;

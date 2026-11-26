@@ -330,19 +330,36 @@
   }
 }
 .web-plane[data-overview="true"] .web-node {
-  justify-content: center;
-  padding: 6px 10px;
+  width: calc(28px / var(--web-zoom));
+  height: calc(28px / var(--web-zoom));
+  min-height: 0;
+  padding: 0;
+  border-radius: 50%;
+  overflow: visible;
 }
 .web-plane[data-overview="true"] .web-node-top,
 .web-plane[data-overview="true"] .web-node-bottom {
   display: none;
 }
 .web-plane[data-overview="true"] .web-node strong {
-  font-size: calc(9px / var(--web-zoom));
-  line-height: 1.3;
-  letter-spacing: 0;
+  position: absolute;
+  left: calc(100% + 6px / var(--web-zoom));
+  top: 50%;
+  transform: translateY(-50%);
+  width: max-content;
+  max-width: calc(165px / var(--web-zoom));
+  display: block;
+  color: var(--rh-ink);
+  font-size: calc(12px / var(--web-zoom));
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 4px #000, 0 1px 6px #000;
   margin: 0;
-  -webkit-line-clamp: 2;
+}
+.web-plane[data-overview="true"] .web-node.is-preview:not(:hover):not(:focus-visible) strong {
+  opacity: .72;
 }
 .web-node {
   animation: web-reveal 0.25s ease both;
@@ -370,3 +387,28 @@
     will-change: auto;
   }
 }
+
+.web-node.is-discovered { border-color: color-mix(in srgb, var(--rh-accent), transparent 56%); }
+.web-node.is-recovered { outline: 2px solid var(--rh-accent); outline-offset: 3px; }
+.web-node.is-selected { border-color: var(--rh-accent); box-shadow: 0 0 24px color-mix(in srgb, var(--rh-accent), transparent 68%); }
+.web-edge.is-traversed path { stroke: var(--rh-accent); }
+@media (prefers-reduced-motion: no-preference) {
+  .web-edge.is-traversed path.just-traversed {
+    stroke-dasharray: 1;
+    animation: draw-thread 420ms ease-out both;
+  }
+  .web-node.is-selected { animation: web-reveal 250ms ease both, active-thread 2.4s ease-in-out infinite alternate; }
+}
+@keyframes draw-thread { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes active-thread { to { box-shadow: 0 0 38px color-mix(in srgb, var(--rh-accent), transparent 48%); } }
+
+.web-experience .web-plane[data-overview="true"] .web-node {
+  width: calc(28px / var(--web-zoom));
+  height: calc(28px / var(--web-zoom));
+  min-height: 0;
+  overflow: visible;
+}
+.web-node.is-selected, .web-node.is-selected:hover {
+  background: var(--rh-accent) !important;
+}
+.web-experience .web-node strong { font-family: var(--rh-display); }

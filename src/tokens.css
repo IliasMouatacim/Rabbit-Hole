@@ -1,0 +1,16 @@
+:root {
+  --rh-bg: #0b1119;
+  --rh-panel: #141f2b;
+  --rh-raised: #202e3e;
+  --rh-ink: #f2f7ff;
+  --rh-muted: #adbed0;
+  --rh-accent: #76e0ed;
+  --rh-display: Manrope, sans-serif;
+  --rh-body-size: 1rem;
+  --rh-label-size: .75rem;
+  --rh-gap: 1rem;
+}
+[data-world="forest"] { --rh-accent: #c0ee88; }
+[data-world="dreams"] { --rh-accent: #c3a5ff; }
+[data-world="football"] { --rh-accent: #ffd48b; }
+[data-world="music"] { --rh-accent: #ff9daf; }

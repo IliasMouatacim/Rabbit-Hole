@@ -228,7 +228,7 @@ button:hover:not(:disabled) {
   letter-spacing: -0.2px;
 }
 .curiosity-card em {
-  font-family: Georgia, serif;
+  font-family: var(--rh-display);
   color: #c8e79b;
 }
 .curiosity-card button {
@@ -351,7 +351,7 @@ h1 {
   margin: 13px 0 8px;
 }
 h1 > span {
-  font-family: Georgia, serif;
+  font-family: var(--rh-display);
   font-weight: 400;
   font-style: italic;
   color: #78836b;
@@ -485,7 +485,7 @@ h1 > span {
   color: #7e8971;
 }
 .map-hint {
-  font-family: Georgia, serif;
+  font-family: var(--rh-display);
   font-style: italic;
   color: #a2a993;
   font-size: 11px;
@@ -621,7 +621,7 @@ h1 > span {
 }
 .map-caption {
   position: absolute;
-  font-family: Georgia, serif;
+  font-family: var(--rh-display);
   font-size: 13px;
   font-style: italic;
   color: #a0aa92;
@@ -799,7 +799,7 @@ h1 > span {
   margin: 14px 0 12px;
 }
 .detail-summary {
-  font-family: Georgia, serif;
+  font-family: var(--rh-display);
   font-size: 13px;
   line-height: 1.65;
   color: #7c846f;
@@ -971,7 +971,7 @@ h1 > span {
   display: flex;
   align-items: center;
   gap: 7px;
-  font-family: Georgia, serif;
+  font-family: var(--rh-display);
   font-style: italic;
   font-size: 11px;
   color: #929b84;
@@ -1022,7 +1022,7 @@ h1 > span {
   margin-top: 12px;
 }
 .collection-header em {
-  font-family: Georgia, serif;
+  font-family: var(--rh-display);
   font-weight: 400;
   color: #7b896d;
 }

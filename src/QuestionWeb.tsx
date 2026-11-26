@@ -14,6 +14,8 @@ export default function QuestionWeb({
   hovered,
   highlighted = [],
   savedIdeas = [],
+  recovered = [],
+  onRecovered,
   compact = false,
 }: {
   world: World;
@@ -23,6 +25,8 @@ export default function QuestionWeb({
   hovered: number | null;
   highlighted?: string[];
   savedIdeas?: string[];
+  recovered?: string[];
+  onRecovered?: (id: string) => void;
   compact?: boolean;
 }) {
   const viewport = useRef<HTMLDivElement>(null),
@@ -35,6 +39,7 @@ export default function QuestionWeb({
     zoom: (_factor: number) => {},
   });
   const camera = useRef<Camera>({ x: 0, y: 0, zoom: 1 });
+  const lastEdgeCount = useRef(state.edges.length);
   const [focused, setFocused] = useState(false);
   const graph = useMemo(() => {
     const full = visibleWeb(world, state);
@@ -46,13 +51,15 @@ export default function QuestionWeb({
         }
       : full;
   }, [world, state, focused]);
+  const displayNodes = [...new Set([...graph.nodes, ...recovered])];
   const positions = useMemo(() => layoutWeb(world), [world]);
   const visibleKey = graph.nodes.slice().sort().join("|");
-  const latest = useRef({ state, graph, focused, compact });
-  latest.current = { state, graph, focused, compact };
+  const latest = useRef({ state, graph, focused, compact, displayNodes });
+  latest.current = { state, graph, focused, compact, displayNodes };
   useEffect(() => {
     const container = viewport.current!,
       content = plane.current!;
+    let flight: Animation | undefined;
     let frame = 0,
       disposed = false,
       moved = false;
@@ -68,11 +75,13 @@ export default function QuestionWeb({
       readout.current!.textContent = `${Math.round(c.zoom * 100)}%`;
     };
     const update = (c: Camera) => {
+      flight?.cancel();
       camera.current = c;
       if (!frame) frame = requestAnimationFrame(render);
     };
     const fit = (overview = true) => {
-      const bounds = webBounds(latest.current.graph.nodes, positions);
+      const { graph } = latest.current;
+      const bounds = webBounds(overview ? latest.current.displayNodes : [...graph.discovered], positions);
       const fitted = Math.max(
         0.15,
         Math.min(
@@ -110,11 +119,15 @@ export default function QuestionWeb({
     const center = (id: string) => {
       const p = positions.get(id)!;
       const zoom = Math.max(0.65, camera.current.zoom);
-      update({
-        zoom,
-        x: container.clientWidth / 2 - p.x * zoom,
-        y: container.clientHeight / 2 - p.y * zoom,
-      });
+      const from = getComputedStyle(content).transform;
+      const target = { zoom, x: container.clientWidth / 2 - p.x * zoom, y: container.clientHeight / 2 - p.y * zoom };
+      update(target);
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        flight = content.animate([
+          { transform: from },
+          { transform: `translate3d(${target.x}px,${target.y}px,0) scale(${zoom})` },
+        ], { duration: 320, easing: 'ease-out' });
+      }
     };
     controls.current = {
       fit: () => fit(true),
@@ -243,6 +256,7 @@ export default function QuestionWeb({
     fit(latest.current.compact);
     return () => {
       disposed = true;
+      flight?.cancel();
       cancelAnimationFrame(frame);
       observer.disconnect();
       container.removeEventListener("wheel", wheel);
@@ -259,6 +273,8 @@ export default function QuestionWeb({
     else controls.current.reveal();
   }, [visibleKey, focused, compact]);
   useEffect(() => {
+    const answered = state.edges.length > lastEdgeCount.current;
+    lastEdgeCount.current = state.edges.length;
     if (focused || compact) {
       controls.current.fit();
       return;
@@ -269,13 +285,13 @@ export default function QuestionWeb({
     const x = point.x * c.zoom + c.x,
       y = point.y * c.zoom + c.y;
     if (
-      x < 100 ||
+      answered || x < 100 ||
       x > area.clientWidth - 100 ||
       y < 100 ||
       y > area.clientHeight - 100
     )
       controls.current.center(state.selected);
-  }, [state.selected, positions, focused, compact]);
+  }, [state.selected, state.edges.length, positions, focused, compact]);
 
   return (
     <div className="web-map-shell" id="question-web">
@@ -359,7 +375,7 @@ export default function QuestionWeb({
                   className={`web-edge ${traversed ? "is-traversed" : ""} ${active ? "is-active" : ""} ${highlighted.includes(edge.from) && highlighted.includes(edge.to) ? "connection-found" : ""}`}
                   data-edge-id={edge.id}
                 >
-                  <path d={`M${a.x},${a.y} Q${mx},${my} ${b.x},${b.y}`} />
+                  <path pathLength={1} className={traversed && edge.id === state.edges.at(-1) ? "just-traversed" : undefined} d={`M${a.x},${a.y} Q${mx},${my} ${b.x},${b.y}`} />
                   {active && (
                     <g
                       className="web-edge-letter"
@@ -375,7 +391,7 @@ export default function QuestionWeb({
               );
             })}
           </svg>
-          {graph.nodes.map((id) => {
+          {displayNodes.map((id) => {
             const q = questionById.get(id)!,
               p = positions.get(id)!,
               known = graph.discovered.has(id),
@@ -392,7 +408,7 @@ export default function QuestionWeb({
                 key={id}
                 data-node-id={id}
                 title={q.title}
-                className={`web-node ${selected ? "is-selected" : ""} ${known ? "is-discovered" : "is-preview"} topic-${q.world} ${highlighted.includes(id) ? "connection-found" : ""}`}
+                className={`web-node ${selected ? "is-selected" : ""} ${known ? "is-discovered" : "is-preview"} topic-${q.world} ${highlighted.includes(id) ? "connection-found" : ""} ${recovered.includes(id) ? "is-recovered" : ""}`}
                 style={{ left: p.x, top: p.y }}
                 aria-pressed={selected}
                 aria-label={
@@ -407,7 +423,7 @@ export default function QuestionWeb({
                 onClick={() =>
                   known
                     ? onSelect(id)
-                    : incoming && onAnswer(incoming.from, incoming.choice)
+                    : recovered.includes(id) ? onRecovered?.(id) : incoming && onAnswer(incoming.from, incoming.choice)
                 }
               >
                 {savedIdeas.includes(q.idea) && (

@@ -31,15 +31,14 @@ import {
   webHash,
   webStorageKey,
 } from "./web-state";
+import { readProfile } from "./descent-profile";
 import QuestionWeb from "./QuestionWeb";
 import Discovery from "./Discovery";
 import JourneyStory from "./JourneyStory";
 import "./cinematic.css";
 import "./questions.css";
 import "./web-journey.css";
-import "./web-polish.css";
 import "./discovery.css";
-import "./usability.css";
 
 const plural = (count: number, word: string) =>
   `${count} ${word}${count === 1 ? "" : "s"}`;
@@ -76,6 +75,8 @@ export default function WebJourney({
   onSave: (id: string) => void;
   onPlay: () => void;
 }) {
+  const [recovered] = useState(() => readProfile().discoveries);
+  const recoveredQuestions = questions.filter(q => q.world === world && recovered.includes(q.id));
   const [state, setState] = useState(() => {
     try {
       return loadWeb(world, window.location.hash, localStorage);
@@ -277,6 +278,7 @@ export default function WebJourney({
   };
   return (
     <div
+      data-world={current.world}
       className={`question-journey web-experience discovery-experience world-${current.world} ${mapExpanded ? "map-expanded" : ""}`}
     >
       <div className="web-content" inert={listOpen || resetOpen}>
@@ -295,7 +297,7 @@ export default function WebJourney({
             rabbit hole<span className="logo-period">®</span>
           </button>
           <div className="journey-nav-actions">
-            <button onClick={onPlay} style={{ background: '#c9f78b', color: '#142018', borderRadius: 6, padding: '12px 18px', border: 0, fontWeight: 600 }}>✳ Play Thread</button>
+            <button onClick={onPlay} style={{ background: '#c9f78b', color: '#142018', borderRadius: 6, padding: '12px 18px', border: 0, fontWeight: 600 }}>Play expedition</button>
             <button className="web-share" onClick={share}>
               <Share2 size={14} /> Share web
             </button>
@@ -367,6 +369,11 @@ export default function WebJourney({
         </div>
         <main className="web-workspace">
           <QuestionWeb
+            recovered={recoveredQuestions.map(q => q.id)}
+            onRecovered={id => {
+              const question = questionById.get(id);
+              if (question) onMap(question.world, question.idea);
+            }}
             world={world}
             state={state}
             onSelect={select}
@@ -449,7 +456,7 @@ export default function WebJourney({
                 <h1 ref={heading} tabIndex={-1}>
                   {current.title}
                 </h1>
-                <p className="question-hint">{current.hint}</p>
+
                 {connection && (
                   <div className="answer-bridge">
                     <GitBranch size={14} />
@@ -457,7 +464,7 @@ export default function WebJourney({
                       <span>
                         CONNECTED THROUGH <strong>“{connection.text}”</strong>
                       </span>
-                      <p>{connection.connection}</p>
+
                     </div>
                   </div>
                 )}
@@ -509,7 +516,7 @@ export default function WebJourney({
                       " You can always come back and try the others."}
                   </span>
                 </p>
-                <div className="branch-preview">
+                {hover !== null && <div className="branch-preview">
                   <span>
                     <ArrowUpRight size={12} />{" "}
                     {`Answer ${String.fromCharCode(65 + (hover ?? 0))} leads to`}
@@ -517,7 +524,8 @@ export default function WebJourney({
                   <p>
                     {questionById.get(current.answers[hover ?? 0].next)!.title}
                   </p>
-                </div>
+                </div>}
+                <details className="question-context"><summary>Question hint</summary><p>{current.hint}</p></details>
                 <button
                   className="journey-back"
                   disabled={!state.history.length}
@@ -575,9 +583,11 @@ export default function WebJourney({
                 <RotateCcw size={13} /> New web
               </button>
             </div>
-            {state.edges.length > 0 && (
-              <JourneyStory world={world} state={state} />
-            )}
+            {recoveredQuestions.length > 0 && <details className="question-context codex-shelf" open>
+                <summary>Expedition codex · {recoveredQuestions.length}</summary>
+                {recoveredQuestions.map(q => <button key={q.id} onClick={() => onMap(q.world, q.idea)}><span aria-hidden="true">◇</span> {q.title}</button>)}
+              </details>}
+            {state.edges.length > 0 && <JourneyStory world={world} state={state} />}
           </aside>
         </main>
         {!listOpen && !resetOpen && (

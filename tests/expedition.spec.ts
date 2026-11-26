@@ -107,3 +107,42 @@ test('failure explains the fatal move; challenge retries and practice can undo i
     else{await expect(page.getByRole('button',{name:'Undo fatal move'})).toHaveCount(0);await page.getByRole('button',{name:'Retry this expedition'}).click();await expect(page.getByRole('dialog')).toHaveCount(0);}
   }
 });
+
+test('daily run opens from home and resumes after reloading', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Start Daily Descent' }).click();
+  await page.getByRole('button', { name: 'Learn in 30 seconds' }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Begin expedition' }).click();
+  await page.getByRole('button', { name: 'Skip guidance' }).click();
+  await page.getByRole('button', { name: /node 2$/ }).click();
+  await expect(page.locator('.exp-site.current')).toHaveAttribute('aria-label', /node 2$/);
+  await expect(page).toHaveURL(/seed=DAILY-/);
+  await page.reload();
+  await expect(page.locator('.exp-site.current')).toHaveAttribute('aria-label', /node 2$/);
+  await expect(page.locator('.exp-board-hud')).toContainText('DEPTH 1/5');
+  await page.getByRole('button', {name: /return|rabbit hole/i}).first().click();
+  await page.getByRole('button', {name: 'Start Daily Descent'}).click();
+  await expect(page.locator('.exp-site.current')).toHaveAttribute('aria-label', /node 2$/);
+});
+
+test('recovering a fragment unlocks its codex node and restores the pending upgrade', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  const seed = 'ABYSS-001';
+  const chart = makeChart(seed);
+  await page.goto(`/#play/ocean?run=expedition&seed=${seed}`);
+  await page.getByRole('button', { name: 'Begin expedition' }).click();
+  for (const id of route(chart, newExpedition('challenge','scout',false,'ocean'), chart.fragments[0])) {
+    await page.getByRole('button', { name: new RegExp(`node ${id}$`) }).click();
+    const leave = page.getByRole('button', { name: /Leave it alone|Leave without wagering/ });
+    if (await leave.isVisible()) await leave.click();
+  }
+  await solveEncounter(page, 0, seed);
+  await expect(page.getByRole('dialog')).toContainText('Choose a field upgrade');
+  await page.reload();
+  await page.getByRole('button', { name: 'Free Reroute', exact: true }).click();
+  await expect(page.getByRole('button', { name: /Reroute ability, 2 charges/ })).toBeVisible();
+  await page.getByRole('button', { name: 'Discovery archive' }).click();
+  await expect(page.locator('.web-node.is-recovered')).toHaveCount(1);
+  await expect(page.getByText('Expedition codex · 1')).toBeVisible();
+});

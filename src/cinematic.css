@@ -280,7 +280,7 @@
   width: max-content;
 }
 .cinema-hero-copy h1 em {
-  font-family: Georgia, serif;
+  font-family: var(--rh-display);
   font-weight: 400;
   letter-spacing: -5px;
   color: #d4e3b4;
@@ -464,7 +464,7 @@
   margin: 28px 0;
 }
 .story-copy h2 em {
-  font-family: Georgia, serif;
+  font-family: var(--rh-display);
   font-weight: 400;
   color: #c5d7a5;
   font-size: 1.05em;
@@ -546,7 +546,7 @@
   line-height: 1.2;
 }
 .reel-heading h2 em {
-  font-family: Georgia, serif;
+  font-family: var(--rh-display);
   color: #c7d8ad;
   font-weight: 400;
   font-size: 1.06em;
@@ -923,7 +923,7 @@
   margin: 30px 0;
 }
 .cinema-outro h2 em {
-  font-family: Georgia, serif;
+  font-family: var(--rh-display);
   font-weight: 400;
   color: #c9dbad;
   letter-spacing: -3px;

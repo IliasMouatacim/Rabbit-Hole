@@ -36,6 +36,7 @@ import "@fontsource/dm-sans/latin-600.css";
 import "@fontsource/manrope/latin-400.css";
 import "@fontsource/manrope/latin-600.css";
 import "@fontsource/manrope/latin-700.css";
+import "./tokens.css";
 import "./styles.css";
 const Cinematic = lazy(() => import("./Cinematic"));
 const QuestionJourney = lazy(() => import("./WebJourney"));
@@ -260,9 +261,9 @@ function App() {
     (n) => n.parent === selected.id || n.id === selected.parent,
   );
   const Icon = icons[selected.icon];
-  function startGame(id: string) {
+  function startGame(id: string, mode: 'expedition' | 'daily' = 'expedition') {
     setPlay(id);
-    window.history.replaceState(null, '', `#play/${id}`);
+    window.history.replaceState(null, '', `#play/${id}?run=${mode}`);
     window.scrollTo({ top: 0, behavior: 'instant' });
   }
   if (play) return <Suspense fallback={<div className="cinema-loading">WAKING THE WEB</div>}><ThreadGame world={play} onHome={() => { setPlay(null); setLanding(true); window.history.replaceState(null, '', window.location.pathname); window.scrollTo({ top: 0, behavior: 'instant' }); }} onExplore={() => { const id = window.location.hash.split('/')[1].split('?')[0]; setPlay(null); chooseTopic(topics.find(t => t.id === id) || topics[0]); }} /></Suspense>;

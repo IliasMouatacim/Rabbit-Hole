@@ -45,7 +45,7 @@ export default function Cinematic({
   onPlay,
 }: {
   onEnter: (topic: string) => void;
-  onPlay: (topic: string) => void;
+  onPlay: (topic: string, mode?: 'expedition' | 'daily') => void;
 }) {
   const root = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);

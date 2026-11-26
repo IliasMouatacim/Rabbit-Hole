@@ -93,3 +93,23 @@ Nature uses a connectivity repair challenge, Mind uses visual memory, Football u
 Challenge URLs include `seed`, `kit`, `mode`, and `hard`; matching these and the world reproduces the map and rules. The daily seed follows the Europe/Paris calendar. Up to 60 local results persist in `rh-expedition-records`; bests compare matching seeds and rules, with Practice separate. A successful Expedition unlocks Guardian, and the log recognises a secret escape and a Deep Dive win. There is no shared leaderboard, account, or influence over another player's run.
 
 `src/expedition-engine.ts` owns deterministic chart generation and transitions. `src/Expedition.tsx` renders the expedition, and `src/ExpeditionEncounter.tsx` implements its playable discoveries. `tests/expedition.spec.ts` checks 75 seeds in both difficulties, a full browser run, different world encounters, loss/retry, abilities, practice undo, records, and mobile behavior. The original `thread-engine.ts` remains covered as the earlier route puzzle model; the production `#play` route uses the expedition engine.
+
+### Expeditions and Daily Descent
+
+The Observatory opens a world expedition or the five-world Daily Descent. Recover
+three fragments per map, take a field upgrade, and escape before the ascent
+closes. The guardian at node 6 offers an optional two-energy wager using the
+world’s factual question pool. The five worlds have different movement threats
+and three encounter objectives each.
+
+Daily Descent uses a shared seed based on the Europe/Paris date. Energy, upgrade
+charges and score carry into the next map. The Field Journal tracks cleared
+worlds, recovered discoveries, best depth, titles and daily wins. Run checkpoints
+and the journal live in this browser. Reloading an active run restores its map and
+pending encounter. The Journey web marks recovered questions and lists them in
+its expedition codex.
+
+New routes use `#play/{world}?run=expedition`, `run=descent`, or `run=daily`.
+Existing bare Quest links and `adventure=1` challenge links still work with their
+original rules. Quest practice now draws three distinct questions from its
+world’s bank for each attempt.
