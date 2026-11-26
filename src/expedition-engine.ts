@@ -32,6 +32,23 @@ export function makeChart(input: string): Chart {
 export function newExpedition(mode: Mode, loadout: Loadout, modifier = false, world?: string): Expedition {
   return { node: 0, energy: modifier ? 22 : 28, moves: 0, fragments: [], visited: [0], revealed: [], used: [], scan: loadout === 'scout' ? 3 : 2, shield: loadout === 'guardian' ? 2 : 1, reroute: 1, armed: false, extra: [], broken: [], threat: -1, phase: 'explore', escape: modifier ? 5 : 7, encounter: null, event: null, status: 'playing', message: 'Pip: “Three fragments. One way out. Probably. Pick a glowing route.”', cause: '', discoveries: [], mode, loadout, modifier, scanned: 0, ...(world ? { world, path: [0], upgrades: [] } : {}) };
 }
+export function enterDescentWorld(previous: Expedition, world: string): Expedition {
+  const next = newExpedition(previous.mode, previous.loadout, previous.modifier, world);
+  // A last-energy escape must still leave enough to reach the first air pocket.
+  const energy = Math.max(6, previous.energy);
+  return {
+    ...next,
+    energy,
+    scan: previous.scan,
+    shield: previous.shield,
+    armed: previous.armed,
+    reroute: previous.reroute,
+    freeReroutes: previous.freeReroutes,
+    upgrades: previous.upgrades,
+    message: energy === previous.energy ? next.message : `Pip found emergency air. You start with ${energy} energy.`,
+  };
+}
+
 const same = (a: Link, b: Link) => a[0] === b[0] && a[1] === b[1] || a[0] === b[1] && a[1] === b[0];
 export const activeLinks = (chart: Chart, run: Expedition) => [...chart.links, ...run.extra].filter(link => !run.broken.some(b => same(link, b)) && (!link.includes(14) || run.revealed.includes(14)));
 export const neighbours = (chart: Chart, run: Expedition, node = run.node) => activeLinks(chart, run).flatMap(([a,b]) => a === node ? [b] : b === node ? [a] : []);

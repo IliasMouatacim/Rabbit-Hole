@@ -1,7 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import { fragmentQuestions } from '../src/descent-profile';
 import { questionById } from '../src/questions';
-import { ability, activeLinks, bargain, chooseUpgrade, guardianWager, dailySeed, makeChart, moveCost, newExpedition, nextThreat, resolveEncounter, travel, type Chart, type Expedition } from '../src/expedition-engine';
+import { ability, activeLinks, bargain, chooseUpgrade, guardianWager, dailySeed, expeditionScore, makeChart, moveCost, newExpedition, nextThreat, resolveEncounter, travel, type Chart, type Expedition } from '../src/expedition-engine';
 
 function route(chart:Chart, run:Expedition, target:number):number[] {
   const queue = [{node:run.node,path:[] as number[],cost:0}], visited=new Set<number>();
@@ -167,4 +167,34 @@ test('three codex entries per world and one upgrade per recovered fragment', () 
   expect(guardianWager(wager, true).energy).toBe(run.energy + 2);
   expect(guardianWager(wager, false).energy).toBe(run.energy - 2);
   expect(guardianWager(wager, null).used).toContain(6);
+});
+
+test('a last-energy escape carries the kit and cumulative score into the next depth', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  const seed = dailySeed();
+  const cleared: Expedition = {
+    ...newExpedition('challenge', 'scout', false, 'ocean'),
+    status: 'won', node: 18, energy: 0, moves: 11, phase: 'escape',
+    fragments: makeChart(seed).fragments, scan: 2, shield: 1, armed: true,
+    reroute: 1, freeReroutes: 1, upgrades: ['Free Reroute'], path: [0, 18],
+  };
+  const checkpoint = `rh-run-v1:daily:chain:${seed}:challenge:scout:false`;
+  await page.addInitScript(({ checkpoint, cleared }) => {
+    if (!sessionStorage.getItem('depth-test-fixture')) {
+      localStorage.setItem(checkpoint, JSON.stringify({ history: [cleared], score: 0, world: 'ocean' }));
+      sessionStorage.setItem('depth-test-fixture', '1');
+    }
+  }, { checkpoint, cleared });
+  await page.goto(`/#play/ocean?run=daily&seed=${seed}`);
+  await expect(page.getByRole('dialog')).toContainText('Pip supplies 6 emergency energy');
+  await page.getByRole('button', { name: 'Descend to Nature' }).click();
+  await expect(page.locator('.exp-board-hud')).toContainText('DEPTH 2/5');
+  await expect(page.locator('.exp-board-hud')).toContainText('6ENERGY');
+  await expect(page.getByRole('button', { name: /Shield ability, 1 charges/ })).toContainText('ARMED');
+  await expect(page.getByRole('button', { name: /Reroute ability, 1 charges/ })).toContainText('free');
+  await expect(page.locator('.exp-run-stats')).toContainText(String(expeditionScore(cleared) + 60));
+  await page.reload();
+  await expect(page.locator('.exp-board-hud')).toContainText('DEPTH 2/5');
+  await expect(page.getByRole('button', { name: /Shield ability, 1 charges/ })).toContainText('ARMED');
+  await expect(page.locator('.exp-run-stats')).toContainText(String(expeditionScore(cleared) + 60));
 });

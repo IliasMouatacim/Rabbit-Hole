@@ -49,3 +49,13 @@
 .exp-encounter { max-height: none; }
 .exp-end-actions { flex-wrap: wrap; }
 .exp-heading h1, .exp-briefing h2, .exp-encounter h2 { font-family: var(--rh-display); }
+
+.exp-next-depth {
+  margin: var(--rh-gap) 0;
+  padding: var(--rh-gap);
+  border: 1px solid color-mix(in srgb, var(--thread-accent), transparent 64%);
+  border-radius: 12px;
+  background: var(--rh-panel);
+}
+.exp-next-depth p { margin: 0 0 .75rem; }
+.exp-next-depth strong { color: var(--thread-accent); }

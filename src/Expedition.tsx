@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { ArrowUpRight, Check, Compass, Eye, Flag, HelpCircle, Rabbit, Radio, RotateCcw, Share2, Shield, Shuffle, Undo2, Volume2, VolumeX, X, Zap } from 'lucide-react';
-import { ability, activeLinks, bargain, challengeURL, dailySeed, chooseUpgrade, guardianWager, threatInterval, upgrades, expeditionScore, makeChart, mirageTarget, moveCost, neighbours, newExpedition, nextThreat, normalSeed, pressingLane, resolveEncounter, travel, type Expedition as Run, type Loadout, type Mode } from './expedition-engine';
+import { ability, activeLinks, bargain, challengeURL, dailySeed, chooseUpgrade, guardianWager, threatInterval, upgrades, enterDescentWorld, expeditionScore, makeChart, mirageTarget, moveCost, neighbours, newExpedition, nextThreat, normalSeed, pressingLane, resolveEncounter, travel, type Expedition as Run, type Loadout, type Mode } from './expedition-engine';
 import { dailyStreak, descentWorlds, fragmentQuestions, readProfile, writeProfile } from './descent-profile';
 import GuardianEncounter from './GuardianEncounter';
 import ExpeditionEncounter from './ExpeditionEncounter';
@@ -52,6 +52,10 @@ export default function Expedition({ world: initialWorld, onHome, onExplore }: {
   const modalHeading = useRef<HTMLHeadingElement>(null), audio = useRef<AudioContext|null>(null), savedRun = useRef(checkpoint.history.at(-1)?.status === 'won');
   const chart = makeChart(depth > 1 ? `${depth}-${seed}` : seed), run = history.at(-1), sector = sectors.find(s=>s.id===world) || sectors[0];
   const finished = !!run&&run.status!=='playing', overlay = !!run&&(run.encounter!==null||run.event!==null||run.reward||run.guardian!==undefined||finished)||help||tutorial;
+  const nextSector = chained && run?.status === 'won'
+    ? sectors.find(s => s.id === descentWorlds[depth])
+    : undefined;
+  const nextRun = run && nextSector ? enterDescentWorld(run, nextSector.id) : undefined;
   const guardianUnlocked = profile.worlds.length>0 || archive.some(r=>r.won&&r.mode==='challenge');
   const best = archive.filter(r=>r.seed===seed&&r.world===world&&r.mode===mode&&r.loadout===loadout&&r.hard===hard).reduce((v,r)=>Math.max(v,r.score),0);
   useEffect(() => {
@@ -94,13 +98,10 @@ export default function Expedition({ world: initialWorld, onHome, onExplore }: {
     window.scrollTo({top:0,behavior:'instant'});
   }
   function continueDescent() {
-    if (!run || depth >= descentWorlds.length) return;
-    const nextWorld = descentWorlds[depth];
-    const next = newExpedition(mode, loadout, hard, nextWorld);
+    if (!run || !nextSector || !nextRun) return;
     setChainScore(chainScore + expeditionScore(run));
-    setWorld(nextWorld);
-    setHistory([{ ...next, energy: run.energy, scan: run.scan, shield: run.shield,
-      reroute: run.reroute, freeReroutes: run.freeReroutes, upgrades: run.upgrades }]);
+    setWorld(nextSector.id);
+    setHistory([nextRun]);
     savedRun.current = false;
     setHover(null);
   }
@@ -194,7 +195,14 @@ ${window.location.href}`;
         : run?.reward ? <div className="exp-bargain-options">{upgrades.map(upgrade=><button key={upgrade} onClick={()=>apply(chooseUpgrade(run,upgrade))}>{upgrade}</button>)}</div>
         : run && <GuardianEncounter world={world} seed={seed} energy={run.energy} onFinish={result=>apply(guardianWager(run,result))}/>}
     </section></div>}
-    {finished&&run&&<div className="exp-modal-backdrop"><section role="dialog" aria-modal="true" aria-labelledby="exp-result-title" className={`exp-encounter exp-end ${run.status==='won'?'victory':''}`} onKeyDown={trap}><span className="exp-end-symbol">{run.status==='won'?'✳':run.status==='extracted'?'◇':'↺'}</span><span className="thread-eyebrow">{run.status==='won'?run.used.includes(14)?'SECRET ENDING / THE GARDEN REMEMBERS':'EXPEDITION COMPLETE':run.status==='extracted'?'A WISE RETREAT':'EXPEDITION LOST'}</span><h2 id="exp-result-title" ref={modalHeading} tabIndex={-1}>{run.status==='won'?'You brought the light back.':run.status==='extracted'?'Some things are worth saving.':'The deep keeps its secrets.'}</h2><p>{run.status==='won'?'Three discoveries. A route that only you took. Pip is already asking what’s over the next ridge.':run.cause}</p><div className="exp-end-stats"><span><strong>{chainScore+expeditionScore(run)}</strong>SCORE</span><span><strong>{run.fragments.length}/3</strong>FRAGMENTS</span><span><strong>{run.moves}</strong>MOVES</span><span><strong>{run.energy}</strong>ENERGY</span></div> {run.path&&<details className="exp-recap"><summary>Route and upgrades</summary><p>{run.path.map(id=>chart.nodes[id].name).join(' → ')}</p><p>{run.upgrades?.join(', ') || 'No upgrades collected'}</p></details>}<div className="exp-end-discoveries">{run.discoveries.map(d=><span key={d}>◇ {d}</span>)}</div><p className="exp-result-note">{run.status==='lost'?`You recovered ${run.fragments.length} fragments before the final decision. The same chart is waiting; try a different route or practice with undo.`:`Best score for this code and rules: ${Math.max(best,expeditionScore(run))}. ${run.mode==='practice'?'Practice results stay separate from expedition records.':guardianUnlocked?'Guardian kit available for your next dive.':''}`}</p> {chained&&run.status==='won'&&depth<descentWorlds.length&&<button className="exp-primary" onClick={continueDescent}>Descend to {sectors.find(s=>s.id===descentWorlds[depth])?.world} <ArrowUpRight size={16}/></button>}<button className="exp-primary" onClick={start}>{run.status==='won'?'Replay this expedition':'Retry this expedition'} <RotateCcw size={16}/></button><div className="exp-end-actions">{run.mode==='practice'&&run.status==='lost'&&<button onClick={undo}><Undo2 size={14}/> Undo fatal move</button>}<button onClick={()=>{setHistory([]);savedRun.current=false;}}>Change route / kit</button><button onClick={shareResult}><Share2 size={14}/> Copy result</button><button onClick={share}><Share2 size={14}/> Share this challenge</button></div>{copy&&<p role="status">{copy}</p>}</section></div>}
+    {finished&&run&&<div className="exp-modal-backdrop"><section role="dialog" aria-modal="true" aria-labelledby="exp-result-title" className={`exp-encounter exp-end ${run.status==='won'?'victory':''}`} onKeyDown={trap}><span className="exp-end-symbol">{run.status==='won'?'✳':run.status==='extracted'?'◇':'↺'}</span><span className="thread-eyebrow">{run.status==='won'?run.used.includes(14)?'SECRET ENDING / THE GARDEN REMEMBERS':'EXPEDITION COMPLETE':run.status==='extracted'?'A WISE RETREAT':'EXPEDITION LOST'}</span><h2 id="exp-result-title" ref={modalHeading} tabIndex={-1}>{run.status==='won'?chained&&depth===descentWorlds.length?'You completed the Descent.':'You brought the light back.':run.status==='extracted'?'Some things are worth saving.':'The deep keeps its secrets.'}</h2><p>{run.status==='won'?'Three discoveries. A route that only you took. Pip is already asking what’s over the next ridge.':run.cause}</p><div className="exp-end-stats"><span><strong>{chainScore+expeditionScore(run)}</strong>SCORE</span><span><strong>{run.fragments.length}/3</strong>FRAGMENTS</span><span><strong>{run.moves}</strong>MOVES</span><span><strong>{run.energy}</strong>ENERGY</span></div> {run.path&&<details className="exp-recap"><summary>Route and upgrades</summary><p>{run.path.map(id=>chart.nodes[id].name).join(' → ')}</p><p>{run.upgrades?.join(', ') || 'No upgrades collected'}</p></details>}<div className="exp-end-discoveries">{run.discoveries.map(d=><span key={d}>◇ {d}</span>)}</div><p className="exp-result-note">{run.status==='lost'?`You recovered ${run.fragments.length} fragments before the final decision. The same chart is waiting; try a different route or practice with undo.`:`Best score for this code and rules: ${Math.max(best,expeditionScore(run))}. ${run.mode==='practice'?'Practice results stay separate from expedition records.':guardianUnlocked?'Guardian kit available for your next dive.':''}`}</p> {nextRun&&nextSector&&<div className="exp-next-depth">
+      <p><strong>Next depth · {nextSector.world}</strong><br />
+        {nextRun.energy} energy · {nextRun.scan} Scan · {nextRun.shield} Shield · {nextRun.reroute} Reroute
+        {nextRun.armed && ' · Shield armed'}
+      </p>
+      {nextRun.energy>run.energy&&<p>Pip supplies {nextRun.energy-run.energy} emergency energy before you descend.</p>}
+      <button className="exp-primary" onClick={continueDescent}>Descend to {nextSector.world} <ArrowUpRight size={16}/></button>
+    </div>}<button className="exp-primary" onClick={start}>{chained?'Restart Descent':run.status==='won'?'Replay this expedition':'Retry this expedition'} <RotateCcw size={16}/></button><div className="exp-end-actions">{run.mode==='practice'&&run.status==='lost'&&<button onClick={undo}><Undo2 size={14}/> Undo fatal move</button>}<button onClick={()=>{setHistory([]);savedRun.current=false;}}>Change route / kit</button><button onClick={shareResult}><Share2 size={14}/> Copy result</button><button onClick={share}><Share2 size={14}/> Share this challenge</button></div>{copy&&<p role="status">{copy}</p>}</section></div>}
     {help&&<div className="exp-modal-backdrop"><section role="dialog" aria-modal="true" aria-labelledby="exp-help-title" className="exp-encounter" onKeyDown={trap}><h2 id="exp-help-title" ref={modalHeading} tabIndex={-1}>A few things Pip forgot.</h2><p>Move only along glowing threads. Hover, focus, or tap a site to inspect it. Each move costs 1 energy; hazards cost 3 unless Shield is armed. Air pockets restore 5 once.</p><p>Diamond sites hold playable encounters and sourced discoveries. Complete three, then reach the ascent in 7 moves (5 in Deep Dive). The creature moves every third turn, not in real time. Red lines predict its route; contact costs 4 energy.</p><p>Scan reveals hidden routes. After your first fragment it also restores energy for newly revealed sites. Shield prevents one hit. Reroute costs 2 energy and opens a useful direct thread. All have limited charges.</p><p>Practice allows undo, including failure. Expedition does not. Daily challenges use the Paris calendar. Links include the seed and rules so friends play independently.</p><button className="exp-primary" onClick={()=>setHelp(false)}>Back to the expedition <Check size={16}/></button></section></div>}
   </div>;
 }

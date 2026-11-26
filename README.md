@@ -103,7 +103,8 @@ world’s factual question pool. The five worlds have different movement threats
 and three encounter objectives each.
 
 Daily Descent uses a shared seed based on the Europe/Paris date. Energy, upgrade
-charges and score carry into the next map. The Field Journal tracks cleared
+charges, an armed Shield and score carry into the next map. If you escape with
+fewer than six energy, Pip tops up your supply before the next map. The Field Journal tracks cleared
 worlds, recovered discoveries, best depth, titles and daily wins. Run checkpoints
 and the journal live in this browser. Reloading an active run restores its map and
 pending encounter. The Journey web marks recovered questions and lists them in
