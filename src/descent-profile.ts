@@ -12,7 +12,9 @@ export const fragmentQuestions: Record<string, string[]> = {
 };
 
 export type Profile = { discoveries: string[]; worlds: string[]; bestDepth: number; dailyWins: string[]; skin?: string };
+let temporaryProfile: Profile | undefined;
 export function readProfile(): Profile {
+  if (temporaryProfile) return temporaryProfile;
   try {
     const value = JSON.parse(localStorage.getItem(key) || '{}');
     return {
@@ -28,7 +30,10 @@ export function readProfile(): Profile {
 }
 
 export function writeProfile(profile: Profile) {
-  try { localStorage.setItem(key, JSON.stringify(profile)); } catch { /* Play continues in memory. */ }
+  try {
+    localStorage.setItem(key, JSON.stringify(profile));
+    temporaryProfile = undefined;
+  } catch { temporaryProfile = profile; }
   return profile;
 }
 

@@ -114,7 +114,7 @@ test("new subjects can be entered from the cinematic opening", async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/");
+  await page.goto("/#observatory");
   await page.getByRole("button", { name: "Football", exact: true }).click();
   await expect(page.locator(".question-stage h1")).toHaveText(
     "What really wins a football match?",

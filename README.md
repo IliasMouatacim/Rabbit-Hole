@@ -1,6 +1,10 @@
 # Rabbit Hole
 
-A curiosity-driven exploration app built with React 19, TypeScript, Vite, Three.js, and Lenis. A playable ocean question opens the experience. Each answer then reveals a sourced discovery and an experiment before inviting another choice. Explore 50 curated questions and 150 answer connections across nature, the mind, the ocean, football, and music; the spiderweb preserves every branch.
+Rabbit Hole opens with **Glow Drop**, a five-world pinball game. Aim by dragging on the board and release to fire. The arrow keys and Space also work. Light all three gold beacons in each world and finish Echo Hall to bring Pip home. Bank shots and combos earn more points. Catching a spark in the moving scoop returns it to your reserve.
+
+The daily game gives everyone the same chart on the Paris calendar. Free play generates other charts. After each world, choose five sparks at normal points or three at double points. Runs resume in this browser, and result links let friends play the same chart. Beacons unlock discoveries in the existing question web.
+
+Open **Expeditions** (`/#observatory`) for the strategic Daily Descent, playable ocean question, experiments, and discovery archive. Its 50 curated questions and 150 answer connections span nature, the mind, the ocean, football, and music.
 
 ## Develop
 
@@ -25,7 +29,7 @@ In the Linux cloud workspace, run `npm run test:cloud` to use the packaged Chrom
 
 ## Features
 
-- Playable homepage: guess whether life can thrive without sunlight, discover a hydrothermal-vent food web, then enter the Ocean or follow the connection toward life elsewhere. The interaction works without WebGL. Question and subject counts come from the content.
+- Observatory opening: guess whether life can thrive without sunlight, discover a hydrothermal-vent food web, then enter the Ocean or follow the connection toward life elsewhere. The interaction works without WebGL. Question and subject counts come from the content.
 - Scroll-pinned storytelling, a 3D background, live HUD, and horizontal expedition reel. A single animation loop drives the active scene; reduced-motion and WebGL fallbacks are supported.
 - Choose → discover → play → choose again. Evidence, limitations, sources, and saving appear in the main discovery panel. Explore gives the reading room priority; My map expands the same connected spiderweb.
 - The discovery step survives a reload when browser storage is available; experiment settings reset. The pending step uses `rh-discovery-{world}` alongside the existing saved web.

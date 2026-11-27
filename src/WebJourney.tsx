@@ -62,6 +62,7 @@ const subjectNames = {
 export default function WebJourney({
   world,
   onHome,
+  homeLabel,
   onMap,
   onWorld,
   savedIds,
@@ -70,6 +71,7 @@ export default function WebJourney({
 }: {
   world: World;
   onHome: () => void;
+  homeLabel: string;
   onMap: (world: World, idea: string) => void;
   onWorld: (world: World) => void;
   savedIds: string[];
@@ -288,7 +290,7 @@ export default function WebJourney({
           <button
             className="cinema-brand"
             onClick={onHome}
-            aria-label="Rabbit Hole — return to the descent"
+            aria-label={homeLabel}
           >
             <span className="cinema-logo">
               <i />

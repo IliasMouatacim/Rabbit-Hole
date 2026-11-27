@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test('observatory previews each world and enters the selected Football expedition', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', e => errors.push(e.message));
-  await page.goto('/');
+  await page.goto('/#observatory');
   await expect(page.getByRole('heading', { name: /Nothing exists/ })).toBeInViewport({ timeout: 15000 });
   for (const world of ['Nature', 'Mind', 'Music', 'Football']) {
     await page.getByRole('button', { name: `Preview ${world}`, exact: true }).click();
@@ -20,7 +20,7 @@ test('observatory previews each world and enters the selected Football expeditio
 test('mobile observatory works with reduced motion and opens Mind correctly', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/');
+  await page.goto('/#observatory');
   await expect(page.getByRole('button', { name: 'Start Daily Descent', exact: true })).toBeInViewport();
   await page.getByRole('button', { name: 'Preview Mind', exact: true }).click();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

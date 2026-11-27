@@ -6,7 +6,7 @@ test("the playable hero leads into pinned storytelling and reel navigation", asy
   test.setTimeout(90000);
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
-  await page.goto("/");
+  await page.goto("/#observatory");
   await expect(
     page.getByRole("heading", { name: /Nothing exists/ }),
   ).toBeVisible({ timeout: 15000 });
@@ -46,7 +46,7 @@ test("reduced motion provides a native snap reel and usable map entry", async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/");
+  await page.goto("/#observatory");
   await expect(page.locator(".cinematic")).toHaveClass(/motion-off/);
   await expect(
     page.getByRole("button", { name: "Enable motion" }),
@@ -69,7 +69,7 @@ test("mobile experience fits the screen and can bypass the introduction", async 
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/");
+  await page.goto("/#observatory");
   await expect(page.locator(".cinematic")).toBeVisible();
   expect(
     await page.evaluate(
@@ -106,7 +106,7 @@ test("WebGL failure retains a usable visual fallback and entry point", async ({
       return original.apply(this, [type, ...args] as never);
     } as typeof original;
   });
-  await page.goto("/");
+  await page.goto("/#observatory");
   await expect(page.locator(".cinematic")).toHaveClass(/no-webgl/);
   await expect(page.locator(".portal-fallback")).toBeVisible();
   await page

@@ -17,7 +17,7 @@ export default function Observatory({ onEnter, onDescend }: { onEnter: (id: stri
   const world = worlds[active];
   const streak = dailyStreak(readProfile());
   return <section className="observatory" style={{ '--world-glow': world.color } as CSSProperties} aria-label="Curiosity observatory">
-    <div className="observatory-topline"><span><i /> A PLAYGROUND FOR THE CURIOUS</span><span>FIVE WORLDS. NO STRAIGHT LINES.</span></div>
+    <div className="observatory-topline"><span><i /> A PLAYGROUND FOR THE CURIOUS</span><a className="observatory-arcade-link" href="#glow">Play Glow Drop <ArrowUpRight size={13}/></a></div>
     <div className="observatory-layout">
       <div className="observatory-copy">
         <span className="observatory-kicker">GET A LITTLE LOST.</span>

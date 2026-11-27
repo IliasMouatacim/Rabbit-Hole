@@ -113,7 +113,7 @@ test('failure explains the fatal move; challenge retries and practice can undo i
 
 test('daily run opens from home and resumes after reloading', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/');
+  await page.goto('/#observatory');
   await page.getByRole('button', { name: 'Start Daily Descent' }).click();
   await page.getByRole('button', { name: 'Learn in 30 seconds' }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Begin expedition' }).click();

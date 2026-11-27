@@ -38,6 +38,8 @@ import "@fontsource/manrope/latin-600.css";
 import "@fontsource/manrope/latin-700.css";
 import "./tokens.css";
 import "./styles.css";
+const GlowDrop = lazy(() => import("./arcade/GlowDrop"));
+const isArcade = (hash: string) => !hash || hash === '#' || /^#glow(?:\?|$)/.test(hash);
 const Cinematic = lazy(() => import("./Cinematic"));
 const QuestionJourney = lazy(() => import("./WebJourney"));
 const PlayGame = lazy(() => import("./PlayGame"));
@@ -77,6 +79,8 @@ function RabbitMark({ small = false }: { small?: boolean }) {
   );
 }
 function App() {
+  const [arcadeRoute, setArcadeRoute] = useState<string | null>(() => isArcade(location.hash) ? location.hash : null);
+  const arcadeReturn = useRef<string | null>(null);
   const [play, setPlay] = useState<string | null>(() => window.location.hash.match(/^#play\/(ocean|forest|dreams|football|music)(?:\?|$)/)?.[1] || null);
   const [journey, setJourney] = useState<World | null>(
     () =>
@@ -261,12 +265,60 @@ function App() {
     (n) => n.parent === selected.id || n.id === selected.parent,
   );
   const Icon = icons[selected.icon];
+  useEffect(() => {
+    function followHash() {
+      const hash = location.hash;
+      const game = hash.match(/^#play\/(ocean|forest|dreams|football|music)(?:\?|$)/);
+      const web = hash.match(/^#journey\/(ocean|forest|dreams|football|music)(?:\?|$)/);
+      const [topicId, ideaId] = hash.slice(1).split('/');
+      const evidenceTopic = topics.find(entry => entry.id === topicId);
+      const idea = evidenceTopic?.nodes.find(node => node.id === ideaId);
+      if (!isArcade(hash) && hash !== '#observatory' && !game && !web && !idea) return;
+      setArcadeRoute(isArcade(hash) ? hash : null);
+      setLanding(!game && !web && !idea);
+      if (evidenceTopic && idea) chooseTopic(evidenceTopic, idea);
+      setPlay(game?.[1] || null);
+      setJourney((web?.[1] as World) || null);
+      if (!web) arcadeReturn.current = null;
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+    window.addEventListener('hashchange', followHash);
+    return () => window.removeEventListener('hashchange', followHash);
+  }, []);
+  function returnHome() {
+    if (arcadeReturn.current !== null) {
+      window.history.back();
+      return;
+    }
+    setPlay(null);
+    setJourney(null);
+    setLanding(true);
+    setArcadeRoute(null);
+    window.history.replaceState(null, '', '#observatory');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
   function startGame(id: string, mode: 'expedition' | 'daily' = 'expedition') {
     setPlay(id);
     window.history.replaceState(null, '', `#play/${id}?run=${mode}`);
     window.scrollTo({ top: 0, behavior: 'instant' });
   }
-  if (play) return <Suspense fallback={<div className="cinema-loading">WAKING THE WEB</div>}><PlayGame world={play} onHome={() => { setPlay(null); setLanding(true); window.history.replaceState(null, '', window.location.pathname); window.scrollTo({ top: 0, behavior: 'instant' }); }} onExplore={() => { const id = window.location.hash.split('/')[1].split('?')[0]; setPlay(null); chooseTopic(topics.find(t => t.id === id) || topics[0]); }} /></Suspense>;
+  if (arcadeRoute !== null) {
+    return (
+      <Suspense fallback={<div className="cinema-loading">Loading Glow Drop…</div>}>
+        <GlowDrop
+          key={arcadeRoute}
+          onJournal={(world, returnHash) => {
+            arcadeReturn.current = returnHash;
+            setArcadeRoute(null);
+            window.history.replaceState(null, "", returnHash);
+            window.history.pushState(null, "", `#journey/${world}`);
+            chooseTopic(topics.find(t => t.id === world)!);
+          }}
+        />
+      </Suspense>
+    );
+  }
+  if (play) return <Suspense fallback={<div className="cinema-loading">WAKING THE WEB</div>}><PlayGame world={play} onHome={returnHome} onExplore={() => { const id = window.location.hash.split('/')[1].split('?')[0]; setPlay(null); chooseTopic(topics.find(t => t.id === id) || topics[0]); }} /></Suspense>;
   if (landing)
     return (
       <Suspense
@@ -292,12 +344,8 @@ function App() {
           savedIds={saved.map((entry) => entry.id)}
           onSave={toggleSave}
           onWorld={(id) => chooseTopic(topics.find((t) => t.id === id)!)}
-          onHome={() => {
-            setJourney(null);
-            setLanding(true);
-            window.history.replaceState(null, "", window.location.pathname);
-            window.scrollTo({ top: 0, behavior: "instant" });
-          }}
+          onHome={returnHome}
+          homeLabel={arcadeReturn.current !== null ? "Rabbit Hole — return to Glow Drop" : "Rabbit Hole — return to the descent"}
           onMap={(id, ideaId) => {
             setReturnWeb({ world: journey, hash: window.location.hash });
             const t = topics.find((t) => t.id === id)!;
@@ -384,11 +432,7 @@ function App() {
         </div>
         <button
           className="back-to-descent"
-          onClick={() => {
-            window.history.replaceState(null, "", window.location.pathname);
-            setLanding(true);
-            window.scrollTo({ top: 0, behavior: "instant" });
-          }}
+          onClick={returnHome}
         >
           <ArrowUpRight size={16} /> Return to the descent
         </button>

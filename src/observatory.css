@@ -33,3 +33,5 @@
 @media (max-width: 600px) {
   .observatory-mission { margin-block: 16px; }
 }
+
+.observatory-arcade-link { display: inline-flex; align-items: center; gap: 6px; color: #e4eace; font: 600 13px 'DM Sans', sans-serif; letter-spacing: 0; text-decoration: none; }

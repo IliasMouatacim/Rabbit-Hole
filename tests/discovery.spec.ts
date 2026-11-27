@@ -22,7 +22,7 @@ test("homepage offers a playable question without WebGL and leads to the ocean",
       return getContext.apply(this, [type, ...args] as never);
     } as typeof getContext;
   });
-  await page.goto("/");
+  await page.goto("/#observatory");
   await page.getByRole("button", { name: "Or start with a question" }).click();
   await expect(
     page.getByRole("heading", { name: "Could life thrive without sunlight?" }),
